@@ -15,12 +15,9 @@ a = 0
 cubePere = cube.Cube(premier=True)
 cubeFils = cube.Cube(cubePere)
 cubes = [cubePere, cubeFils]
-for i in range(20):
+for i in range(100):
     cubeParent = cubes[-1]
     cubes.append(cube.Cube(cubeParent))
-
-
-
 
 while not done:
     for event in pygame.event.get():
@@ -29,28 +26,25 @@ while not done:
 
     pressed = pygame.key.get_pressed()
     if pressed[pygame.K_UP] and cubePere.verifY(positif=False):
-        y = max(0, (cubePere.y-step))
-        cubePere.deplacementPere(cubePere.x, y)
-        cubePere.setDirectionSinge()
+        max(0, (cubePere.y-step))
+        cubePere.setDirectionSinge(False, False)
 
     elif pressed[pygame.K_DOWN] and cubePere.verifY():
         y = min(maxY, (cubePere.y+step))
-        cubePere.deplacementPere(cubePere.x, y)
-        cubePere.setDirectionSinge()
+        cubePere.setDirectionSinge(False, True)
 
     elif pressed[pygame.K_RIGHT] and cubePere.verifX():
         x = min(maxX, (cubePere.x+step))
-        cubePere.deplacementPere(x, cubePere.y)
-        cubePere.setDirectionSinge()
+        cubePere.setDirectionSinge(True, True)
 
     elif pressed[pygame.K_LEFT] and cubePere.verifX(positif=False):
         x = max(0, (cubePere.x-step))
-        cubePere.deplacementPere(x, cubePere.y)
-        cubePere.setDirectionSinge()
+        cubePere.setDirectionSinge(True, False)
 
     if pressed[pygame.K_0]: print("OK")
 
     screen.fill((0, 0, 0))
+    cubePere.deplacementPere()
 
     for cube in cubes:
         pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 10, 10))

@@ -1,12 +1,14 @@
 import pygame
 
+maxX = 390
+maxY = 290
 
 class Cube:
     def __init__(self, cube=None, premier=False):
         self._color = (0, 128, 255)
 
-        self._directionX = False
-        self._deplacementPositif = False
+        self._directionX = True
+        self._deplacementPositif = True
         if premier:
             self.x = 30
             self.y = 30
@@ -20,11 +22,20 @@ class Cube:
         self.ancienX = 30
         self.ancienY = 30
 
-    def deplacementPere(self, nouveauX, nouveauY):
+    def deplacementPere(self):
         self.ancienX = self.x
         self.ancienY = self.y
-        self.x = nouveauX
-        self.y = nouveauY
+        step = -4
+
+        if self._deplacementPositif:
+            step = 4
+
+        if self._directionX:
+            if self.x + step <= maxX and self.x + step >= 0:
+                self.x += step
+        else:
+            if self.y + step <= maxY and self.y + step >= 0:
+                self.y += step
 
         #pour empecher les cubes fils de rentrer dans le mur
         if self.ancienX != self.x or self.ancienY != self.y:
@@ -46,22 +57,26 @@ class Cube:
     def color(self):
         return self._color
 
-    def setDirectionSinge(self):
-        difX = self.x - self.ancienX
-        difY = self.y - self.ancienY
+    def setDirectionSinge(self, directionX=True, estPositif=True):
 
-        if difX < 0:
-            self._directionX = True
-            self._deplacementPositif = False
-        elif difX > 0:
-            self._directionX = True
-            self._deplacementPositif = True
-        elif difY < 0:
-            self._directionX = False
-            self._deplacementPositif = False
-        elif difY > 0:
-            self._directionX = False
-            self._deplacementPositif = True
+        self._directionX = directionX
+        self._deplacementPositif = estPositif
+
+        # difX = self.x - self.ancienX
+        # difY = self.y - self.ancienY
+        #
+        # if difX < 0:
+        #     self._directionX = True
+        #     self._deplacementPositif = False
+        # elif difX > 0:
+        #     self._directionX = True
+        #     self._deplacementPositif = True
+        # elif difY < 0:
+        #     self._directionX = False
+        #     self._deplacementPositif = False
+        # elif difY > 0:
+        #     self._directionX = False
+        #     self._deplacementPositif = True
 
     def verifX(self, positif=True):
         if positif:
