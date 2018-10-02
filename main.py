@@ -15,7 +15,7 @@ a = 0
 cubePere = cube.Cube(premier=True)
 cubeFils = cube.Cube(cubePere)
 cubes = [cubePere, cubeFils]
-for i in range(100):
+for i in range(5):
     cubeParent = cubes[-1]
     cubes.append(cube.Cube(cubeParent))
 
@@ -50,6 +50,6 @@ while not done:
         pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 10, 10))
 
     pygame.display.flip()
-    clock.tick(60)
+    clock.tick(15)
 
 

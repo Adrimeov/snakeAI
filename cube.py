@@ -25,10 +25,10 @@ class Cube:
     def deplacementPere(self):
         self.ancienX = self.x
         self.ancienY = self.y
-        step = -4
+        step = -11
 
         if self._deplacementPositif:
-            step = 4
+            step = 11
 
         if self._directionX:
             if self.x + step <= maxX and self.x + step >= 0:
