@@ -25,7 +25,10 @@ class Cube:
         self.ancienY = self.y
         self.x = nouveauX
         self.y = nouveauY
-        self.fils.deplacementFils()
+        print(self.ancienX, self.x, self.ancienX != self.x)
+
+        if self.ancienX != self.x or self.ancienY != self.y:
+            self.fils.deplacementFils()
 
     def deplacementFils(self):
             self.ancienX = self.x
