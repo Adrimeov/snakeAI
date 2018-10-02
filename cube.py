@@ -65,13 +65,12 @@ class Cube:
     def updateGoodPositions(self, positionArray):
 
         position = (self.x, self.y)
-        retour = positionArray.suprimmerIndex(position)
-        if retour == -1:
+        isFood = positionArray.suprimmerIndex(position)
+        if isFood == -1:
             print("Collision")
-            return 1
-        isFood = retour
+            return (1, False)
         self.updateGoodPositionsFils(positionArray)
-        return 0
+        return (0, isFood)
 
     def updateGoodPositionsFils(self, positionArray):
         if self.fils != 0:

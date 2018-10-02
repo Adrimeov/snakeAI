@@ -17,6 +17,9 @@ cubePere = cube.Cube(premier=True)
 cubeFils = cube.Cube(cubePere)
 cubes = [cubePere, cubeFils]
 positionsValides = grilleObjets.grilleObjets(400, 10)
+
+positionsValides.miseAJourIndex((100, 100), True)
+
 for i in range(10):
     cubeParent = cubes[-1]
     cubes.append(cube.Cube(cubeParent))
@@ -43,10 +46,15 @@ while not done:
 
     screen.fill((0, 0, 0))
     cubePere.deplacementPere()
-    done = cubePere.updateGoodPositions(positionsValides)
+    reponse = cubePere.updateGoodPositions(positionsValides)
+    done = reponse[0]
+
+    if reponse[1]:
+        print("MIAM")
 
     for cube in cubes:
         pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
+    pygame.draw.rect(screen, (0,0,255), pygame.Rect(100, 100, 9, 9))
 
     pygame.display.flip()
     clock.tick(15)
