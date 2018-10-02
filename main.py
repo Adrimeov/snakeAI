@@ -1,5 +1,6 @@
 import pygame
 import cube
+import grilleObjets
 
 maxX = 390
 maxY = 390
@@ -15,6 +16,7 @@ a = 0
 cubePere = cube.Cube(premier=True)
 cubeFils = cube.Cube(cubePere)
 cubes = [cubePere, cubeFils]
+positionsValides = grilleObjets.grilleObjets(400, 10)
 for i in range(10):
     cubeParent = cubes[-1]
     cubes.append(cube.Cube(cubeParent))
@@ -41,6 +43,7 @@ while not done:
 
     screen.fill((0, 0, 0))
     cubePere.deplacementPere()
+    done = cubePere.updateGoodPositions(positionsValides)
 
     for cube in cubes:
         pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))

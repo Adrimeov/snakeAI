@@ -62,21 +62,23 @@ class Cube:
         self._directionX = directionX
         self._deplacementPositif = estPositif
 
-        # difX = self.x - self.ancienX
-        # difY = self.y - self.ancienY
-        #
-        # if difX < 0:
-        #     self._directionX = True
-        #     self._deplacementPositif = False
-        # elif difX > 0:
-        #     self._directionX = True
-        #     self._deplacementPositif = True
-        # elif difY < 0:
-        #     self._directionX = False
-        #     self._deplacementPositif = False
-        # elif difY > 0:
-        #     self._directionX = False
-        #     self._deplacementPositif = True
+    def updateGoodPositions(self, positionArray):
+
+        position = (self.x, self.y)
+        retour = positionArray.suprimmerIndex(position)
+        if retour == -1:
+            print("Collision")
+            return 1
+        isFood = retour
+        self.updateGoodPositionsFils(positionArray)
+        return 0
+
+    def updateGoodPositionsFils(self, positionArray):
+        if self.fils != 0:
+            self.fils.updateGoodPositionsFils(positionArray)
+            return
+        position = (self.ancienX, self.ancienY)
+        positionArray.miseAJourIndex(position, False)
 
     def verifX(self, positif=True):
         if positif:
