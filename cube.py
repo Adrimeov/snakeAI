@@ -17,16 +17,16 @@ class Cube:
             self.fils = 0
             cube.ajouterFils(self)
 
-        self.ancienX = 0
-        self.ancienY = 0
+        self.ancienX = 30
+        self.ancienY = 30
 
     def deplacementPere(self, nouveauX, nouveauY):
         self.ancienX = self.x
         self.ancienY = self.y
         self.x = nouveauX
         self.y = nouveauY
-        print(self.ancienX, self.x, self.ancienX != self.x)
 
+        #pour empecher les cubes fils de rentrer dans le mur
         if self.ancienX != self.x or self.ancienY != self.y:
             self.fils.deplacementFils()
 

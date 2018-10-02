@@ -3,7 +3,7 @@ import cube
 
 maxX = 390
 maxY = 290
-step = 5
+step = 4
 
 pygame.init()
 clock = pygame.time.Clock()
