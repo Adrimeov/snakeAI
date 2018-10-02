@@ -1,7 +1,7 @@
 import pygame
 
 maxX = 390
-maxY = 290
+maxY = 390
 
 class Cube:
     def __init__(self, cube=None, premier=False):
@@ -25,10 +25,10 @@ class Cube:
     def deplacementPere(self):
         self.ancienX = self.x
         self.ancienY = self.y
-        step = -11
+        step = -10
 
         if self._deplacementPositif:
-            step = 11
+            step = 10
 
         if self._directionX:
             if self.x + step <= maxX and self.x + step >= 0:

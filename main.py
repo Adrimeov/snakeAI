@@ -2,12 +2,12 @@ import pygame
 import cube
 
 maxX = 390
-maxY = 290
+maxY = 390
 step = 4
 
 pygame.init()
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((400, 300))
+screen = pygame.display.set_mode((400, 400))
 done = 0
 a = 0
 # x = 30
@@ -15,7 +15,7 @@ a = 0
 cubePere = cube.Cube(premier=True)
 cubeFils = cube.Cube(cubePere)
 cubes = [cubePere, cubeFils]
-for i in range(5):
+for i in range(10):
     cubeParent = cubes[-1]
     cubes.append(cube.Cube(cubeParent))
 
@@ -26,19 +26,15 @@ while not done:
 
     pressed = pygame.key.get_pressed()
     if pressed[pygame.K_UP] and cubePere.verifY(positif=False):
-        max(0, (cubePere.y-step))
         cubePere.setDirectionSinge(False, False)
 
     elif pressed[pygame.K_DOWN] and cubePere.verifY():
-        y = min(maxY, (cubePere.y+step))
         cubePere.setDirectionSinge(False, True)
 
     elif pressed[pygame.K_RIGHT] and cubePere.verifX():
-        x = min(maxX, (cubePere.x+step))
         cubePere.setDirectionSinge(True, True)
 
     elif pressed[pygame.K_LEFT] and cubePere.verifX(positif=False):
-        x = max(0, (cubePere.x-step))
         cubePere.setDirectionSinge(True, False)
 
     if pressed[pygame.K_0]: print("OK")
@@ -47,7 +43,7 @@ while not done:
     cubePere.deplacementPere()
 
     for cube in cubes:
-        pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 10, 10))
+        pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
 
     pygame.display.flip()
     clock.tick(15)
