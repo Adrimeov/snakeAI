@@ -5,20 +5,20 @@ import grilleObjets
 maxX = 390
 maxY = 390
 step = 4
-
+scoreParMiam = 10
+scoreTotal = 0
 pygame.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((400, 400))
 done = 0
 a = 0
-# x = 30
-# y = 30
+
 cubePere = cube.Cube(premier=True)
 cubeFils = cube.Cube(cubePere)
 cubes = [cubePere, cubeFils]
 positionsValides = grilleObjets.grilleObjets(400, 10)
-
-positionsValides.miseAJourIndex((100, 100), True)
+position = positionsValides.genererNouveauPoint()
+positionsValides.miseAJourIndex(position, True)
 
 for i in range(10):
     cubeParent = cubes[-1]
@@ -42,21 +42,21 @@ while not done:
     elif pressed[pygame.K_LEFT] and cubePere.verifX(positif=False):
         cubePere.setDirectionSinge(True, False)
 
-    if pressed[pygame.K_0]: print("OK")
-
     screen.fill((0, 0, 0))
     cubePere.deplacementPere()
     reponse = cubePere.updateGoodPositions(positionsValides)
     done = reponse[0]
 
     if reponse[1]:
-        print("MIAM")
+        scoreTotal += scoreParMiam
+        print(scoreTotal)
+        position = positionsValides.genererNouveauPoint()
+        positionsValides.miseAJourIndex(position, True)
+
 
     for cube in cubes:
         pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
-    pygame.draw.rect(screen, (0,0,255), pygame.Rect(100, 100, 9, 9))
+    pygame.draw.rect(screen, (0,0,255), pygame.Rect(position[0], position[1], 9, 9))
 
     pygame.display.flip()
     clock.tick(15)
-
-
