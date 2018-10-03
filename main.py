@@ -7,7 +7,10 @@ maxY = 390
 step = 4
 scoreParMiam = 10
 scoreTotal = 0
+
 pygame.init()
+textFont = pygame.font.SysFont("monospace", 15)
+
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((400, 400))
 done = 0
@@ -47,6 +50,9 @@ while not done:
 
     if ctrFps % tick == 0:
         screen.fill((0, 0, 0))
+        scoretext = "SCORE: " + scoreTotal.__str__()
+        label = textFont.render(scoretext, 1, (255, 255, 255))
+        screen.blit(label, (0, 0))
         for cube in cubes:
             pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
         pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(position[0], position[1], 9, 9))
