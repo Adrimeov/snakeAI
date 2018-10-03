@@ -11,18 +11,21 @@ pygame.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((400, 400))
 done = 0
-a = 0
 
 cubePere = cube.Cube(premier=True)
-cubeFils = cube.Cube(cubePere)
-cubes = [cubePere, cubeFils]
+cubes = [cubePere]
+cubesParFood = 10
+
 positionsValides = grilleObjets.grilleObjets(400, 10)
 position = positionsValides.genererNouveauPoint()
 positionsValides.miseAJourIndex(position, True)
 
+tick = 60
+fps = tick / 4
+ctrFps = 0
+
 for i in range(10):
-    cubeParent = cubes[-1]
-    cubes.append(cube.Cube(cubeParent))
+    cubes.append(cubePere.ajouterFils())
 
 while not done:
     for event in pygame.event.get():
@@ -42,21 +45,24 @@ while not done:
     elif pressed[pygame.K_LEFT] and cubePere.verifX(positif=False):
         cubePere.setDirectionSinge(True, False)
 
-    screen.fill((0, 0, 0))
-    cubePere.deplacementPere()
-    reponse = cubePere.updateGoodPositions(positionsValides)
-    done = reponse[0]
+    if ctrFps % tick == 0:
+        screen.fill((0, 0, 0))
+        for cube in cubes:
+            pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
+        pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(position[0], position[1], 9, 9))
+        pygame.display.flip()
+        cubePere.deplacementPere()
 
-    if reponse[1]:
-        scoreTotal += scoreParMiam
-        print(scoreTotal)
-        position = positionsValides.genererNouveauPoint()
-        positionsValides.miseAJourIndex(position, True)
+        reponse = cubePere.updateGoodPositions(positionsValides)
+        done = reponse[0]
 
+        if reponse[1]:
+            scoreTotal += scoreParMiam
+            print(scoreTotal)
+            position = positionsValides.genererNouveauPoint()
+            positionsValides.miseAJourIndex(position, True)
+            for i in range(cubesParFood):
+                cubes.append(cubePere.ajouterFils())
 
-    for cube in cubes:
-        pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
-    pygame.draw.rect(screen, (0,0,255), pygame.Rect(position[0], position[1], 9, 9))
-
-    pygame.display.flip()
-    clock.tick(15)
+    ctrFps += fps
+    clock.tick(tick)

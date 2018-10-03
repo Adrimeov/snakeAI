@@ -1,7 +1,6 @@
-import pygame
-
 maxX = 390
 maxY = 390
+
 
 class Cube:
     def __init__(self, cube=None, premier=False):
@@ -12,15 +11,16 @@ class Cube:
         if premier:
             self.x = 30
             self.y = 30
+            self.fils = 0
+            self.ancienX = self.x
+            self.ancienY = self.y
         else:
             self.cube = cube
             self.x = self.cube.ancienX
             self.y = self.cube.ancienY
             self.fils = 0
-            cube.ajouterFils(self)
-
-        self.ancienX = 30
-        self.ancienY = 30
+            self.ancienX = self.x
+            self.ancienY = self.y
 
     def deplacementPere(self):
         self.ancienX = self.x
@@ -37,7 +37,7 @@ class Cube:
             if self.y + step <= maxY and self.y + step >= 0:
                 self.y += step
 
-        #pour empecher les cubes fils de rentrer dans le mur
+        # pour empecher les cubes fils de rentrer dans le mur
         if self.ancienX != self.x or self.ancienY != self.y:
             self.fils.deplacementFils()
 
@@ -51,8 +51,12 @@ class Cube:
             except:
                 return 0
 
-    def ajouterFils(self, cube):
-        self.fils = cube
+    def ajouterFils(self):
+        if self.fils != 0:
+            return self.fils.ajouterFils()
+
+        self.fils = Cube(self)
+        return self.fils
 
     def color(self):
         return self._color
@@ -63,7 +67,6 @@ class Cube:
         self._deplacementPositif = estPositif
 
     def updateGoodPositions(self, positionArray):
-
         position = (self.x, self.y)
         isFood = positionArray.suprimmerIndex(position)
         if isFood == -1:
