@@ -1,6 +1,7 @@
 import pygame
 import cube
 import grilleObjets
+import numpy
 
 maxX = 390
 maxY = 390
@@ -23,7 +24,7 @@ positionsValides = grilleObjets.grilleObjets(400, step)
 positionBouffe = positionsValides.genererNouveauPoint()
 positionsValides.miseAJourIndex(positionBouffe, True)
 
-tick = 15
+tick = 5
 fps = tick / 4
 ctrFps = 0
 
@@ -37,44 +38,51 @@ while not done:
 
     directionActuelle = cubePere.getDirection()
 
-    print(directionActuelle)
-
     x = cubePere.x
     y = cubePere.y
 
     if directionActuelle == "DROITE":
-        bouffeEstAGauche = positionBouffe[1] < y
-        bouffeEstADroite = positionBouffe[1] > y
-        bouffeDroitDevant = not bouffeEstADroite and not bouffeEstAGauche
-        libreAGauche = positionsValides.estDansGrille((x, y - step))
-        libreADroite = positionsValides.estDansGrille((x, y + step))
-        libreEnAvant = positionsValides.estDansGrille((x + step, y))
+        bouffeEstAGauche = int(positionBouffe[1] < y)
+        bouffeEstADroite = int(positionBouffe[1] > y)
+        bouffeDroitDevant = int(not bouffeEstADroite and not bouffeEstAGauche)
+        libreAGauche = int(positionsValides.estDansGrille((x, y - step)))
+        libreADroite = int(positionsValides.estDansGrille((x, y + step)))
+        libreEnAvant = int(positionsValides.estDansGrille((x + step, y)))
 
     if directionActuelle == "GAUCHE":
-        bouffeEstAGauche = positionBouffe[1] > y
-        bouffeEstADroite = positionBouffe[1] < y
-        bouffeDroitDevant = not bouffeEstADroite and not bouffeEstAGauche
-        libreAGauche = positionsValides.estDansGrille((x, y + step))
-        libreADroite = positionsValides.estDansGrille((x, y - step))
-        libreEnAvant = positionsValides.estDansGrille((x - step, y))
+        bouffeEstAGauche = int(positionBouffe[1] > y)
+        bouffeEstADroite = int(positionBouffe[1] < y)
+        bouffeDroitDevant = int(not bouffeEstADroite and not bouffeEstAGauche)
+        libreAGauche = int(positionsValides.estDansGrille((x, y + step)))
+        libreADroite = int(positionsValides.estDansGrille((x, y - step)))
+        libreEnAvant = int(positionsValides.estDansGrille((x - step, y)))
 
     if directionActuelle == "HAUT":
-        bouffeEstAGauche = positionBouffe[0] < x
-        bouffeEstADroite = positionBouffe[0] > x
-        bouffeDroitDevant = not bouffeEstADroite and not bouffeEstAGauche
-        libreAGauche = positionsValides.estDansGrille((x - step, y))
-        libreADroite = positionsValides.estDansGrille((x + step, y))
-        libreEnAvant = positionsValides.estDansGrille((x, y - step))
+        bouffeEstAGauche = int(positionBouffe[0] < x)
+        bouffeEstADroite = int(positionBouffe[0] > x)
+        bouffeDroitDevant = int(not bouffeEstADroite and not bouffeEstAGauche)
+        libreAGauche = int(positionsValides.estDansGrille((x - step, y)))
+        libreADroite = int(positionsValides.estDansGrille((x + step, y)))
+        libreEnAvant = int(positionsValides.estDansGrille((x, y - step)))
 
     if directionActuelle == "BAS":
-        bouffeEstAGauche = positionBouffe[0] > x
-        bouffeEstADroite = positionBouffe[0] < x
-        bouffeDroitDevant = not bouffeEstADroite and not bouffeEstAGauche
-        libreAGauche = positionsValides.estDansGrille((x + step, y))
-        libreADroite = positionsValides.estDansGrille((x - step, y))
-        libreEnAvant = positionsValides.estDansGrille((x, y + step))
+        bouffeEstAGauche = int(positionBouffe[0] > x)
+        bouffeEstADroite = int(positionBouffe[0] < x)
+        bouffeDroitDevant = int(not bouffeEstADroite and not bouffeEstAGauche)
+        libreAGauche = int(positionsValides.estDansGrille((x + step, y)))
+        libreADroite = int(positionsValides.estDansGrille((x - step, y)))
+        libreEnAvant = int(positionsValides.estDansGrille((x, y + step)))
 
-    print(libreEnAvant)
+    inputs = numpy.array([
+        bouffeDroitDevant,
+        bouffeEstADroite,
+        bouffeEstAGauche,
+        libreEnAvant,
+        libreADroite,
+        libreAGauche
+    ])
+
+    print(inputs)
 
     pressed = pygame.key.get_pressed()
     if pressed[pygame.K_UP] and cubePere.verifY(positif=False):
