@@ -6,6 +6,7 @@ maxX = 390
 maxY = 390
 scoreParMiam = 10
 scoreTotal = 0
+step = 10
 
 pygame.init()
 textFont = pygame.font.SysFont("monospace", 15)
@@ -18,7 +19,7 @@ cubePere = cube.Cube(premier=True)
 cubes = [cubePere]
 cubesParFood = 10
 
-positionsValides = grilleObjets.grilleObjets(400, 10)
+positionsValides = grilleObjets.grilleObjets(400, step)
 positionBouffe = positionsValides.genererNouveauPoint()
 positionsValides.miseAJourIndex(positionBouffe, True)
 
@@ -34,14 +35,46 @@ while not done:
         if event.type == pygame.QUIT:
             done = 1
 
-    bouffeEstADroite = positionBouffe[0] > cubePere.x
-    bouffeEstAGauche = positionBouffe[0] < cubePere.x
-    bouffeEstEnHaut = positionBouffe[1] < cubePere.y
-    bouffeEstEnBas = positionBouffe[1] > cubePere.y
-    serpentEstADroite = positionsValides.collisionADroite((cubePere.x, cubePere.y))
-    serpentEstAGauche = positionsValides.collisionAGauche((cubePere.x, cubePere.y))
-    serpentEstEnHaut = positionsValides.collisionEnHaut((cubePere.x, cubePere.y))
-    serpentEstEnBas = positionsValides.collisionEnBas((cubePere.x, cubePere.y))
+    directionActuelle = cubePere.getDirection()
+
+    print(directionActuelle)
+
+    x = cubePere.x
+    y = cubePere.y
+
+    if directionActuelle == "DROITE":
+        bouffeEstAGauche = positionBouffe[1] < y
+        bouffeEstADroite = positionBouffe[1] > y
+        bouffeDroitDevant = not bouffeEstADroite and not bouffeEstAGauche
+        libreAGauche = positionsValides.estDansGrille((x, y - step))
+        libreADroite = positionsValides.estDansGrille((x, y + step))
+        libreEnAvant = positionsValides.estDansGrille((x + step, y))
+
+    if directionActuelle == "GAUCHE":
+        bouffeEstAGauche = positionBouffe[1] > y
+        bouffeEstADroite = positionBouffe[1] < y
+        bouffeDroitDevant = not bouffeEstADroite and not bouffeEstAGauche
+        libreAGauche = positionsValides.estDansGrille((x, y + step))
+        libreADroite = positionsValides.estDansGrille((x, y - step))
+        libreEnAvant = positionsValides.estDansGrille((x - step, y))
+
+    if directionActuelle == "HAUT":
+        bouffeEstAGauche = positionBouffe[0] < x
+        bouffeEstADroite = positionBouffe[0] > x
+        bouffeDroitDevant = not bouffeEstADroite and not bouffeEstAGauche
+        libreAGauche = positionsValides.estDansGrille((x - step, y))
+        libreADroite = positionsValides.estDansGrille((x + step, y))
+        libreEnAvant = positionsValides.estDansGrille((x, y - step))
+
+    if directionActuelle == "BAS":
+        bouffeEstAGauche = positionBouffe[0] > x
+        bouffeEstADroite = positionBouffe[0] < x
+        bouffeDroitDevant = not bouffeEstADroite and not bouffeEstAGauche
+        libreAGauche = positionsValides.estDansGrille((x + step, y))
+        libreADroite = positionsValides.estDansGrille((x - step, y))
+        libreEnAvant = positionsValides.estDansGrille((x, y + step))
+
+    print(libreEnAvant)
 
     pressed = pygame.key.get_pressed()
     if pressed[pygame.K_UP] and cubePere.verifY(positif=False):

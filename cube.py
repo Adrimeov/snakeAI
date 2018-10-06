@@ -22,6 +22,16 @@ class Cube:
             self.ancienX = self.x
             self.ancienY = self.y
 
+    def getDirection(self):
+        if self._directionX:
+            if self._deplacementPositif:
+                return "DROITE"
+            return "GAUCHE"
+        if self._deplacementPositif:
+            return "BAS"
+        return "HAUT"
+
+
     def deplacementPere(self):
         self.ancienX = self.x
         self.ancienY = self.y
