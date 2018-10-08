@@ -31,6 +31,16 @@ class Cube:
             return "BAS"
         return "HAUT"
 
+    def tounerGauche(self):
+        if self._directionX:
+            self._deplacementPositif = not self._deplacementPositif
+        self._directionX = not self._directionX
+
+    def tournerDroite(self):
+        if not self._directionX:
+            self._deplacementPositif = not self._deplacementPositif
+        self._directionX = not self._directionX
+
 
     def deplacementPere(self):
         self.ancienX = self.x

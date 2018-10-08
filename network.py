@@ -19,11 +19,10 @@ class Network:
     def sigmoid(self,x):
         return 1 / (1 + math.exp(-x))
 
-    def mutatationNetwork(self):
+    def mutationNetwork(self):
         #choisir des index au hasard
         self._mutationMatrix(self.matrice1)
         self._mutationMatrix(self.matrice2)
-
 
     def _mutationMatrix(self, matrix):
         shape = matrix.shape
@@ -37,6 +36,10 @@ class Network:
     def decider(self):
         return np.argmax(self.decision)
 
+
+a = Network(6, 6, 3)
+npInpute = np.array([0, 0, 1, 1, 1, 1])
+a.feed_forward(npInpute)
 
 
 
