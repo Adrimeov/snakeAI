@@ -90,7 +90,6 @@ class Cube:
         position = (self.x, self.y)
         isFood = positionArray.suprimmerIndex(position)
         if isFood == -1:
-            print("Collision")
             return (1, False)
         self.updateGoodPositionsFils(positionArray)
         return (0, isFood)
