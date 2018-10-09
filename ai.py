@@ -32,7 +32,6 @@ class ai:
 
     def afficher(self, screen):
         for morceau in self.cubes:
-            print("ok")
             pygame.draw.rect(screen, morceau.color(), pygame.Rect(morceau.x, morceau.y, 9, 9))
         pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(self.positionBouffe[0], self.positionBouffe[1], 9, 9))
 
@@ -101,13 +100,20 @@ class ai:
 
         if reponse[0]:
             del self.cubes[:]
+            return 0
         if reponse[1]:
             self.positionBouffe = self.positionsValides.genererNouveauPoint()
             self.positionsValides.miseAJourIndex(self.positionBouffe, True)
             for i in range(self.cubesParFood):
                 self.cubes.append(self.cubePere.ajouterFils())
 
+        return 1
 
+    def AIaction(self, screen):
+        self.afficher(screen)
+        self.networkInput()
+        self.prochainDeplacementVers()
+        return self.deplacementVers()
 
 
 
