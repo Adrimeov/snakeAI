@@ -15,10 +15,19 @@ ctrFps = 0
 compteur = 0
 fileName = "AISave"
 
-ai1 = 0
+lastAI = 0
 with open(fileName, "rb") as f:
-    ai1 = pickle.load(f)
+    lastAI = pickle.load(f)
 
+nbBestAI = len(lastAI)
+ai1 = []
+for i in range(nbBestAI):
+    ai1 += lastAI[i] * 10
+
+for ai in ai1:
+    ai.mutation()
+
+print(len(ai1))
 
 pygame.init()
 textFont = pygame.font.SysFont("monospace", 15)
@@ -43,7 +52,7 @@ while not done:
             if not i.AIaction(screen):
                 del i
         except:
-            print("dead")
+            pass
 
     pygame.display.flip()
     ctrFps += fps

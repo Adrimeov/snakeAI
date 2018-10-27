@@ -3,6 +3,7 @@ import cube
 import grilleObjets
 import pygame
 import numpy as np
+from copy import copy, deepcopy
 
 class ai:
     def __init__(self, nbrInput, nbrMilieu, nbrOutput):
@@ -18,6 +19,11 @@ class ai:
         self.positionBouffe = self.positionsValides.genererNouveauPoint()
         self.cubesParFood = 10
 
+    def __mul__(self, other):
+        ais = []
+        for i in range(other):
+            ais.append(deepcopy(self))
+        return ais
 
     def __lt__(self, other):
         try:
@@ -38,6 +44,8 @@ class ai:
     def fitness(self):
         self.performance += 1
 
+    def mutation(self):
+        self.network.mutationNetwork()
 
     def networkInput(self):
 
