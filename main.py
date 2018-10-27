@@ -1,5 +1,6 @@
 import pygame
 import ai
+import pickle
 
 maxX = 390
 maxY = 390
@@ -44,13 +45,19 @@ while not done:
     clock.tick(tick)
     compteur += 1
 
-    if compteur >= 5000:
+    if compteur >= 50:
         done = True
 
 ai1 = sorted(ai1)
 tableauScore = []
 for i in ai1:
     tableauScore.append(i.performance)
+
+bestAis = ai1[-10:]
+
+fileName = "AISave"
+with open(fileName, 'wb') as file:
+    pickle.dump(bestAis, file)
 
 print(tableauScore)
 
