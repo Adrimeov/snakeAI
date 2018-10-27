@@ -8,9 +8,10 @@ scoreTotal = 0
 step = 10
 cubesParFood = 10
 done = 0
-tick = 60
+tick = 20
 fps = tick / 4
 ctrFps = 0
+compteur = 0
 
 
 pygame.init()
@@ -41,3 +42,19 @@ while not done:
     pygame.display.flip()
     ctrFps += fps
     clock.tick(tick)
+    compteur += 1
+
+    if compteur >= 5000:
+        done = True
+
+ai1 = sorted(ai1)
+tableauScore = []
+for i in ai1:
+    tableauScore.append(i.performance)
+
+print(tableauScore)
+
+
+
+
+

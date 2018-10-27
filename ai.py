@@ -102,10 +102,13 @@ class ai:
             del self.cubes[:]
             return 0
         if reponse[1]:
+            self.performance += 100
             self.positionBouffe = self.positionsValides.genererNouveauPoint()
             self.positionsValides.miseAJourIndex(self.positionBouffe, True)
             for i in range(self.cubesParFood):
                 self.cubes.append(self.cubePere.ajouterFils())
+
+        self.performance += 1
 
         return 1
 
