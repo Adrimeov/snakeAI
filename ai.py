@@ -118,6 +118,12 @@ class ai:
         self.prochainDeplacementVers()
         return self.deplacementVers()
 
+    def reset(self):
+        self.performance = 0
+        self.cubePere = cube.Cube(premier=True)
+        self.cubes = [self.cubePere]
+        self.creationDuVers()
+
 
 
 

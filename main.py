@@ -13,15 +13,20 @@ tick = 20
 fps = tick / 4
 ctrFps = 0
 compteur = 0
+fileName = "AISave"
+
+ai1 = 0
+with open(fileName, "rb") as f:
+    ai1 = pickle.load(f)
 
 
 pygame.init()
 textFont = pygame.font.SysFont("monospace", 15)
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((400, 400))
-ai1 = []
-for i in range(100):
-    ai1.append(ai.ai(6, 6, 3))
+# ai1 = []
+# for i in range(100):
+#     ai1.append(ai.ai(6, 6, 3))
 
 while not done:
     for event in pygame.event.get():
@@ -52,12 +57,16 @@ ai1 = sorted(ai1)
 tableauScore = []
 for i in ai1:
     tableauScore.append(i.performance)
+    i.reset()
 
 bestAis = ai1[-10:]
 
 fileName = "AISave"
 with open(fileName, 'wb') as file:
     pickle.dump(bestAis, file)
+
+
+
 
 print(tableauScore)
 
