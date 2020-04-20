@@ -71,7 +71,7 @@ class Cube:
     def color(self):
         return self._color
 
-    def setDirectionSinge(self, directionX=True, estPositif=True):
+    def setDirectionSigne(self, directionX=True, estPositif=True):
 
         self._directionX = directionX
         self._deplacementPositif = estPositif
