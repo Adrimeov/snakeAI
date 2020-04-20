@@ -24,7 +24,7 @@ positionsValides = grilleObjets.grilleObjets(400, step)
 positionBouffe = positionsValides.genererNouveauPoint()
 positionsValides.miseAJourIndex(positionBouffe, True)
 
-tick = 5
+tick = 10
 fps = tick / 4
 ctrFps = 0
 
@@ -40,6 +40,32 @@ while not done:
 
     x = cubePere.x
     y = cubePere.y
+
+    bouffeEstAGauche = 0
+    bouffeEstADroite = 0
+    bouffeDroitDevant = 0
+    libreAGauche = 0
+    libreEnAvant = 0
+
+    pressed = pygame.key.get_pressed()
+    if pressed[pygame.K_UP] and cubePere.verifY(positif=False):
+        cubePere.setDirectionSinge(False, False)
+
+    elif pressed[pygame.K_DOWN] and cubePere.verifY():
+        cubePere.setDirectionSinge(False, True)
+
+    elif pressed[pygame.K_RIGHT] and cubePere.verifX():
+        cubePere.setDirectionSinge(True, True)
+
+    elif pressed[pygame.K_LEFT] and cubePere.verifX(positif=False):
+        cubePere.setDirectionSinge(True, False)
+
+    cubePere.deplacementPere()
+    for cube in cubes:
+        pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
+    pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(positionBouffe[0], positionBouffe[1], 9, 9))
+    pygame.display.flip()
+
 
     if directionActuelle == "DROITE":
         bouffeEstAGauche = int(positionBouffe[1] < y)
@@ -82,30 +108,16 @@ while not done:
         libreAGauche
     ])
 
-    print(inputs)
-
-    pressed = pygame.key.get_pressed()
-    if pressed[pygame.K_UP] and cubePere.verifY(positif=False):
-        cubePere.setDirectionSinge(False, False)
-
-    elif pressed[pygame.K_DOWN] and cubePere.verifY():
-        cubePere.setDirectionSinge(False, True)
-
-    elif pressed[pygame.K_RIGHT] and cubePere.verifX():
-        cubePere.setDirectionSinge(True, True)
-
-    elif pressed[pygame.K_LEFT] and cubePere.verifX(positif=False):
-        cubePere.setDirectionSinge(True, False)
 
     screen.fill((0, 0, 0))
-    scoretext = "SCORE: " + scoreTotal.__str__()
-    label = textFont.render(scoretext, 1, (255, 255, 255))
-    screen.blit(label, (0, 0))
-    for cube in cubes:
-        pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
-    pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(positionBouffe[0], positionBouffe[1], 9, 9))
-    pygame.display.flip()
-    cubePere.deplacementPere()
+    # scoretext = "SCORE: " + scoreTotal.__str__()
+    # label = textFont.render(scoretext, 1, (255, 255, 255))
+    # screen.blit(label, (0, 0))
+    # for cube in cubes:
+    #     pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
+    # pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(positionBouffe[0], positionBouffe[1], 9, 9))
+    # pygame.display.flip()
+
 
     reponse = cubePere.updateGoodPositions(positionsValides)
     done = reponse[0]
