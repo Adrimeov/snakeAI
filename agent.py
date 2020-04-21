@@ -1,11 +1,10 @@
 import collections
-import numpy as np
 import random
 
-from torch import nn, relu, softmax, optim
+from torch import nn, relu, softmax, optim, device, cuda, max, from_numpy, argmax
 from torch.nn import MSELoss
 
-NUMBER_OF_ACTIONS = 4
+NUMBER_OF_ACTIONS = 3
 NUMBER_OF_PARAMS = 11
 HIDDEN_LAYER_DIM = 200
 
@@ -13,18 +12,17 @@ HIDDEN_LAYER_DIM = 200
 class Agent:
     def __init__(self, params):
         self.reward = 0
-        self.model = FcNetwork()
+        self.device = device("cuda" if cuda.is_available() else "cpu")
+        self.model = FcNetwork().to(self.device)
         self.gamma = 0.9
         self.optimiser = optim.Adam(self.model.parameters(), lr=0.01)
         self.loss_function = MSELoss()
         self.memory = collections.deque(maxlen=params['memory_size'])
 
     def predict_move(self, state):
-        predicts = self.model(state)
-        action = np.zeros(NUMBER_OF_ACTIONS)
-        action[np.argmax(predicts)] = 1
+        predicts = self.model(from_numpy(state).to(self.device))
 
-        return action
+        return argmax(predicts)
 
     def set_reward(self, player_ate, game_over):
         self.reward = 0
@@ -39,13 +37,14 @@ class Agent:
         self.memory.append((state, action, new_step, reward, game_over))
 
     def train_step(self, state, action, new_state, reward, game_over):
-        target = reward
+        expected_reward = reward
         if not game_over:
-            target = reward + self.gamma * np.amax(self.predict_move(new_state))
-        actual_targets = self.predict_move(state)
-        expected_targets = np.array(actual_targets, copy=True)
-        expected_targets[np.argmax(action)] = target
-        loss = self.loss_function(expected_targets, actual_targets)
+            expected_reward = reward + self.gamma * max(self.model(new_state))
+
+        predicted_output = self.model(state)
+        expected_output = predicted_output.data.to(self.device)
+        expected_output[action] = expected_reward
+        loss = self.loss_function(predicted_output, expected_output)
         loss.backward()
         self.optimiser.step()
 
@@ -69,4 +68,4 @@ class FcNetwork(nn.Module):
     def forward(self, state):
         x = relu(self.layer1(state))
         x = relu(self.layer2(x))
-        return  softmax(self.layer3(x), dim=1)
+        return softmax(self.layer3(x), dim=1)
