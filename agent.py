@@ -3,6 +3,7 @@ import numpy as np
 import random
 
 from torch import nn, relu, softmax, optim
+from torch.nn import MSELoss
 
 NUMBER_OF_ACTIONS = 4
 NUMBER_OF_PARAMS = 11
@@ -14,17 +15,12 @@ class Agent:
         self.reward = 0
         self.model = FcNetwork()
         self.gamma = 0.9
-        # self.learning_rate = params['learning_rate']
-        # self.first_layer = params['first_layer_size']
-        # self.second_layer = params['second_layer_size']
-        # self.third_layer = params['third_layer_size']
+        self.optimiser = optim.Adam(self.model.parameters(), lr=0.01)
+        self.loss_function = MSELoss()
         self.memory = collections.deque(maxlen=params['memory_size'])
-        # self.weights = params['weights_path']
-        # self.load_weights = params['load_weights']
 
     def predict_move(self, state):
-        # Utiliser le model pour faire des predictions
-        predicts = self.model.predict(state)
+        predicts = self.model(state)
         action = np.zeros(NUMBER_OF_ACTIONS)
         action[np.argmax(predicts)] = 1
 
@@ -46,9 +42,12 @@ class Agent:
         target = reward
         if not game_over:
             target = reward + self.gamma * np.amax(self.predict_move(new_state))
-        expected_targets = self.predict_move(state)
+        actual_targets = self.predict_move(state)
+        expected_targets = np.array(actual_targets, copy=True)
         expected_targets[np.argmax(action)] = target
-        self.model.fit(state, expected_targets, epochs=1, verbose=0)
+        loss = self.loss_function(expected_targets, actual_targets)
+        loss.backward()
+        self.optimiser.step()
 
     def replay_memory(self, batch_size):
         if len(self.memory) > batch_size:
@@ -58,6 +57,7 @@ class Agent:
 
         for state, action, new_state, reward, game_over in batch:
             self.train_step(state, action, new_state, reward, game_over)
+
 
 class FcNetwork(nn.Module):
     def __init__(self):
