@@ -1,8 +1,11 @@
 import collections
+import datetime
 import random
 
-from torch import nn, relu, softmax, optim, device, cuda, max, from_numpy, argmax
+from torch import nn, relu, softmax, optim, device, cuda, max, from_numpy, argmax, save
 from torch.nn import MSELoss
+
+MODEL_PATH = "Snake_model"
 
 NUMBER_OF_ACTIONS = 3
 NUMBER_OF_PARAMS = 11
@@ -20,6 +23,7 @@ class Agent:
         self.memory = collections.deque(maxlen=1000)
         self.death_memory = collections.deque(maxlen=1000)
         self.food_memory = collections.deque(maxlen=1000)
+        self.date = datetime.datetime.today().strftime('%M')
 
     def predict_move(self, state):
         predicts = self.model(from_numpy(state).float().to(self.device))
@@ -72,6 +76,9 @@ class Agent:
 
         for state, action, new_state, reward, game_over in batch:
             self.train_step(state, action, new_state, reward, game_over)
+
+    def save_model(self):
+        save(self.model, MODEL_PATH + self.date)
 
 
 class FcNetwork(nn.Module):

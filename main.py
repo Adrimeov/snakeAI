@@ -1,24 +1,24 @@
 import pygame
 import cube as cb
 import grilleObjets
-import numpy
 import utils
+import pickle
+import datetime
 
 from random import randint, random
 from agent import Agent
 
-maxX = 190
-maxY = 190
-scoreParMiam = 10
-scoreTotal = 0
+maxX = 240
+maxY = 240
+scoreParMiam = 1
+game_scores = []
 step = 10
 epochs = 1000
 manual = True
 pygame.init()
-textFont = pygame.font.SysFont("monospace", 15)
-muck_predict = utils.muck_agent()
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode((200, 200))
+# textFont = pygame.font.SysFont("monospace", 15)
+# clock = pygame.time.Clock()
+# screen = pygame.display.set_mode((200, 200))
 
 
 tick = 5
@@ -26,18 +26,21 @@ fps = tick / 4
 ctrFps = 0
 cubesParFood = 1
 
-epsilon_decay = 1/100
+epsilon_decay = 1/200
+date = datetime.datetime.today().strftime('%M')
 
 agent = Agent()
 
 
 for i in range(epochs):
     done = 0
+    scoreTotal = 0
+
     cubePere = cb.Cube(premier=True)
     cubes = [cubePere]
     for j in range(1):
         cubes.append(cubePere.ajouterFils())
-    positionsValides = grilleObjets.grilleObjets(200, step)
+    positionsValides = grilleObjets.grilleObjets(250, step)
     positionBouffe = positionsValides.genererNouveauPoint()
     positionsValides.miseAJourIndex(positionBouffe, True)
 
@@ -53,8 +56,6 @@ for i in range(epochs):
 
         x = cubePere.x
         y = cubePere.y
-
-        # utils.manual_mode(cubePere)
 
         old_state, debug_1 = utils.return_state(directionActuelle, positionBouffe, x, y, positionsValides, step)
         epsilon = 1 - i * epsilon_decay
@@ -87,12 +88,16 @@ for i in range(epochs):
         loss = agent.train_step(old_state, action, new_state, reward, done)
         agent.save_state(old_state, action, new_state, reward, done)
 
-        for cube in cubes:
-            pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
-        pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(positionBouffe[0], positionBouffe[1], 9, 9))
-        pygame.display.flip()
-        screen.fill((0, 0, 0))
-
+        # for cube in cubes:
+        #     pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
+        # pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(positionBouffe[0], positionBouffe[1], 9, 9))
+        # pygame.display.flip()
+        # screen.fill((0, 0, 0))
         # clock.tick(tick)
 
-    print(f"game #{i} loss: {loss} epsilon: {epsilon}")
+    game_scores.append(scoreTotal)
+
+    print(f"game #{i} score: {scoreTotal}")
+    with open(f"game_scores_{date}", "wb") as file:
+        pickle.dump(game_scores, file)
+    agent.save_model()
