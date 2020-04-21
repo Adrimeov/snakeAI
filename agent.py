@@ -15,7 +15,7 @@ class Agent:
         self.device = device("cuda" if cuda.is_available() else "cpu")
         self.model = FcNetwork().to(self.device)
         self.gamma = 0.9
-        self.optimiser = optim.Adam(self.model.parameters(), lr=0.001)
+        self.optimiser = optim.Adam(self.model.parameters(), lr=0.01)
         self.loss_function = MSELoss()
         self.memory = collections.deque(maxlen=1000)
 

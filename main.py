@@ -12,13 +12,13 @@ maxY = 390
 scoreParMiam = 10
 scoreTotal = 0
 step = 10
-epochs = 100
+epochs = 1000
 manual = True
 pygame.init()
 textFont = pygame.font.SysFont("monospace", 15)
 muck_predict = utils.muck_agent()
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode((400, 400))
+# clock = pygame.time.Clock()
+# screen = pygame.display.set_mode((400, 400))
 
 
 tick = 5
@@ -35,7 +35,7 @@ for i in range(epochs):
     done = 0
     cubePere = cb.Cube(premier=True)
     cubes = [cubePere]
-    for j in range(1):
+    for j in range(4):
         cubes.append(cubePere.ajouterFils())
     positionsValides = grilleObjets.grilleObjets(400, step)
     positionBouffe = positionsValides.genererNouveauPoint()
@@ -59,7 +59,7 @@ for i in range(epochs):
         old_state = utils.return_state(directionActuelle, positionBouffe, x, y, positionsValides, step)
         epsilon = 1 - i * epsilon_decay
 
-        if random() < epsilon:
+        if random() < .1:
             action = randint(0, 2)
         else:
             action = agent.predict_move(old_state).item()
@@ -73,6 +73,8 @@ for i in range(epochs):
         done = reponse[0]
         reward = reponse[1]
         directionActuelle = cubePere.getDirection()
+        x = cubePere.x
+        y = cubePere.y
         new_state = utils.return_state(directionActuelle, positionBouffe, x, y, positionsValides, step)
         if reponse[1]:
             scoreTotal += scoreParMiam
@@ -85,13 +87,12 @@ for i in range(epochs):
         loss = agent.train_step(old_state, action, new_state, reward, done)
         agent.save_state(old_state, action, new_state, reward, done)
 
-        for cube in cubes:
-            pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
-        pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(positionBouffe[0], positionBouffe[1], 9, 9))
-        pygame.display.flip()
-        screen.fill((0, 0, 0))
+        # for cube in cubes:
+        #     pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
+        # pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(positionBouffe[0], positionBouffe[1], 9, 9))
+        # pygame.display.flip()
+        # screen.fill((0, 0, 0))
 
-        ctrFps += fps
         # clock.tick(tick)
 
     print(f"game #{i} loss: {loss} epsilon: {epsilon}")
