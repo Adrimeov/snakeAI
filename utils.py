@@ -82,8 +82,14 @@ def return_state(direction_actuelle, position_bouffe, x, y, positions_valides, s
         droite = 0
         gauche = 0
 
-    return np.array([bouffe_est_a_gauche, bouffe_est_a_droite, bouffe_devant, bouffe_derriere, danger_a_gauche,
+    array = np.array([bouffe_est_a_gauche, bouffe_est_a_droite, bouffe_devant, bouffe_derriere, danger_a_gauche,
                      danger_a_droite, danger_en_avant, haut, bas, droite, gauche])
+    dict = {"bouffe_est_a_gauche": bouffe_est_a_gauche, "bouffe_est_a_droite": bouffe_est_a_droite,
+            "bouffe_devant": bouffe_devant, "bouffe_derriere": bouffe_derriere, "danger_a_gauche": danger_a_gauche,
+            "danger_a_droite": danger_a_droite, "danger_en_avant":danger_en_avant, "haut": haut, "bas": bas,
+            "droite": droite, "gauche": gauche}
+
+    return array, dict
 
 
 def muck_agent(state=None):
