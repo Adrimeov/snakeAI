@@ -1,4 +1,5 @@
 import pygame
+import numpy as np
 
 
 def manual_mode(cube_pere):
@@ -16,14 +17,14 @@ def manual_mode(cube_pere):
         cube_pere.setDirectionSigne(True, False)
 
 
-def return_state(direction_actuelle, position_bouffe, x, y, positions_valides):
+def return_state(direction_actuelle, position_bouffe, x, y, positions_valides, step):
     bouffe_est_a_gauche = 0
     bouffe_est_a_droite = 0
     bouffe_devant = 0
-    bouffe_derriere = 0 
-    libre_a_gauche = 0
-    libre_a_droite = 0
-    libre_en_avant = 0
+    bouffe_derriere = 0
+    danger_a_gauche = 0
+    danger_a_droite = 0
+    danger_en_avant = 0
     haut = 0
     bas = 0
     droite = 0
@@ -34,9 +35,9 @@ def return_state(direction_actuelle, position_bouffe, x, y, positions_valides):
         bouffe_est_a_droite = int(position_bouffe[1] > y)
         bouffe_devant = int(position_bouffe[1] > x)
         bouffe_derriere = int(position_bouffe[1] < x)
-        libre_a_gauche = int(not positions_valides.estDansGrille((x, y - step)))
-        libre_a_droite = int(not positions_valides.estDansGrille((x, y + step)))
-        libre_en_avant = int(not positions_valides.estDansGrille((x + step, y)))
+        danger_a_gauche = int(not positions_valides.estDansGrille((x, y - step)))
+        danger_a_droite = int(not positions_valides.estDansGrille((x, y + step)))
+        danger_en_avant = int(not positions_valides.estDansGrille((x + step, y)))
         haut = 0
         bas = 0
         droite = 1
@@ -47,9 +48,9 @@ def return_state(direction_actuelle, position_bouffe, x, y, positions_valides):
         bouffe_est_a_droite = int(position_bouffe[1] < y)
         bouffe_devant = int(position_bouffe[1] < x)
         bouffe_derriere = int(position_bouffe[1] > x)
-        libre_a_gauche = int(not positions_valides.estDansGrille((x, y + step)))
-        libre_a_droite = int(not positions_valides.estDansGrille((x, y - step)))
-        libre_en_avant = int(not positions_valides.estDansGrille((x - step, y)))
+        danger_a_gauche = int(not positions_valides.estDansGrille((x, y + step)))
+        danger_a_droite = int(not positions_valides.estDansGrille((x, y - step)))
+        danger_en_avant = int(not positions_valides.estDansGrille((x - step, y)))
         haut = 0
         bas = 0
         droite = 0
@@ -60,9 +61,9 @@ def return_state(direction_actuelle, position_bouffe, x, y, positions_valides):
         bouffe_est_a_droite = int(position_bouffe[0] > x)
         bouffe_devant = int(position_bouffe[0] < y)
         bouffe_derriere = int(position_bouffe[0] > y)
-        libre_a_gauche = int(not positions_valides.estDansGrille((x - step, y)))
-        libre_a_droite = int(not positions_valides.estDansGrille((x + step, y)))
-        libre_en_avant = int(not positions_valides.estDansGrille((x, y - step)))
+        danger_a_gauche = int(not positions_valides.estDansGrille((x - step, y)))
+        danger_a_droite = int(not positions_valides.estDansGrille((x + step, y)))
+        danger_en_avant = int(not positions_valides.estDansGrille((x, y - step)))
         haut = 1
         bas = 0
         droite = 0
@@ -73,13 +74,31 @@ def return_state(direction_actuelle, position_bouffe, x, y, positions_valides):
         bouffe_est_a_droite = int(position_bouffe[0] < x)
         bouffe_devant = int(position_bouffe[0] > y)
         bouffe_derriere = int(position_bouffe[0] < y)
-        libre_a_gauche = int(not positions_valides.estDansGrille((x + step, y)))
-        libre_a_droite = int(not positions_valides.estDansGrille((x - step, y)))
-        libre_en_avant = int(not positions_valides.estDansGrille((x, y + step)))
+        danger_a_gauche = int(not positions_valides.estDansGrille((x + step, y)))
+        danger_a_droite = int(not positions_valides.estDansGrille((x - step, y)))
+        danger_en_avant = int(not positions_valides.estDansGrille((x, y + step)))
         haut = 0
         bas = 1
         droite = 0
         gauche = 0
 
-    return np.array([bouffe_est_a_gauche, bouffe_est_a_droite, bouffe_devant, bouffe_derriere, libre_a_gauche,
-                     libre_a_droite, libre_en_avant, haut, bas, droite, gauche])
+    return np.array([bouffe_est_a_gauche, bouffe_est_a_droite, bouffe_devant, bouffe_derriere, danger_a_gauche,
+                     danger_a_droite, danger_en_avant, haut, bas, droite, gauche])
+
+
+def muck_agent(state=None):
+    states = [(False, False), (True, True), (False, True), (True, False)]
+    while True:
+        for i in states:
+            yield i
+
+
+def translate_direction_from_bool(direction):
+    if direction == (False, False):
+        return "haut"
+    if direction == (True, True):
+        return "droite"
+    if direction == (False, True):
+        return "bas"
+    if direction == (True, False):
+        return "gauche"
