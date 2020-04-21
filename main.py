@@ -7,8 +7,8 @@ import utils
 from random import randint, random
 from agent import Agent
 
-maxX = 390
-maxY = 390
+maxX = 190
+maxY = 190
 scoreParMiam = 10
 scoreTotal = 0
 step = 10
@@ -18,7 +18,7 @@ pygame.init()
 textFont = pygame.font.SysFont("monospace", 15)
 muck_predict = utils.muck_agent()
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((400, 400))
+screen = pygame.display.set_mode((200, 200))
 
 
 tick = 5
@@ -26,7 +26,7 @@ fps = tick / 4
 ctrFps = 0
 cubesParFood = 1
 
-epsilon_decay = 1/50
+epsilon_decay = 1/100
 
 agent = Agent()
 
@@ -35,9 +35,9 @@ for i in range(epochs):
     done = 0
     cubePere = cb.Cube(premier=True)
     cubes = [cubePere]
-    for j in range(4):
+    for j in range(1):
         cubes.append(cubePere.ajouterFils())
-    positionsValides = grilleObjets.grilleObjets(400, step)
+    positionsValides = grilleObjets.grilleObjets(200, step)
     positionBouffe = positionsValides.genererNouveauPoint()
     positionsValides.miseAJourIndex(positionBouffe, True)
 
@@ -59,7 +59,7 @@ for i in range(epochs):
         old_state, debug_1 = utils.return_state(directionActuelle, positionBouffe, x, y, positionsValides, step)
         epsilon = 1 - i * epsilon_decay
 
-        if random() < .1:
+        if random() < epsilon:
             action = randint(0, 2)
         else:
             action = agent.predict_move(old_state).item()
@@ -80,7 +80,7 @@ for i in range(epochs):
             scoreTotal += scoreParMiam
             positionBouffe = positionsValides.genererNouveauPoint()
             positionsValides.miseAJourIndex(positionBouffe, True)
-            for i in range(cubesParFood):
+            for j in range(cubesParFood):
                 cubes.append(cubePere.ajouterFils())
 
         reward = agent.set_reward(reward, done)
