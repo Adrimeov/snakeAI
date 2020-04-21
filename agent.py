@@ -2,13 +2,17 @@ import collections
 import numpy as np
 import random
 
+from torch import nn, relu, softmax, optim
+
 NUMBER_OF_ACTIONS = 4
+NUMBER_OF_PARAMS = 11
+HIDDEN_LAYER_DIM = 200
 
 
 class Agent:
-    def __init__(self, params, model):
+    def __init__(self, params):
         self.reward = 0
-        self.model = model
+        self.model = FcNetwork()
         self.gamma = 0.9
         # self.learning_rate = params['learning_rate']
         # self.first_layer = params['first_layer_size']
@@ -54,3 +58,15 @@ class Agent:
 
         for state, action, new_state, reward, game_over in batch:
             self.train_step(state, action, new_state, reward, game_over)
+
+class FcNetwork(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.layer1 = nn.Linear(NUMBER_OF_PARAMS, HIDDEN_LAYER_DIM)
+        self.layer2 = nn.Linear(HIDDEN_LAYER_DIM, HIDDEN_LAYER_DIM)
+        self.layer3 = nn.Linear(HIDDEN_LAYER_DIM, NUMBER_OF_ACTIONS)
+
+    def forward(self, state):
+        x = relu(self.layer1(state))
+        x = relu(self.layer2(x))
+        return  softmax(self.layer3(x), dim=1)
