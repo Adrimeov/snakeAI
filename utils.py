@@ -93,12 +93,24 @@ def muck_agent(state=None):
             yield i
 
 
-def translate_direction_from_bool(direction):
-    if direction == (False, False):
-        return "haut"
-    if direction == (True, True):
-        return "droite"
-    if direction == (False, True):
-        return "bas"
-    if direction == (True, False):
-        return "gauche"
+def prediction_to_direction(direction, predict):
+    directions = [(True, False), (False, False), (True, True), (False, True)]
+    current_direction = directions.index(direction)
+
+    if predict == 0:
+        current_direction -= 1
+    elif predict == 2:
+        current_direction = (current_direction + 1) % 4
+
+    return directions[current_direction]
+
+
+def direction_from_string_to_bool(direction):
+    string_to_bool = {
+        "HAUT": (False, False),
+        "BAS": (False, True),
+        "DROITE": (True, True),
+        "GAUCHE": (True, False)
+    }
+
+    return string_to_bool[direction]
