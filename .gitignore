@@ -392,5 +392,7 @@ TSWLatexianTemp*
 ### LaTeX Patch ###
 # glossaries
 *.glstex
+*.pdf
+
 
 # End of https://www.gitignore.io/api/latex
