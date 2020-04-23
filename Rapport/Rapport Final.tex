@@ -14,7 +14,7 @@
 \usepackage{times}
 \usepackage{soul}
 \usepackage{url}
-
+\usepackage{graphicx}
 \usepackage[hidelinks]{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[small]{caption}
@@ -22,6 +22,8 @@
 \usepackage{amsmath}
 \usepackage{booktabs}
 \urlstyle{same}
+\usepackage{biblatex}
+\addbibresource{ijcai19.bib}
 
 % the following package is optional:
 %\usepackage{latexsym} 
@@ -46,11 +48,11 @@
 % page charge instructions.
 % Put where the files are available in the appropriate places.
 
-\title{Jouer à Snakes avec apprentissage par renforcement}
+\title{Entrainement d'un agent virtuelle par Q-learning pour le jeu Snake}
 
 \author{
 Samuel Ferron\and
-Jean-Frédéric Fontaine\And
+Jean-Frédéric Fontaine\and
 Noboru Yoshida
 \affiliations
 Department de génie logiciel, Polytechnique Montréal, Canada\\
@@ -68,37 +70,57 @@ This short example shows a contrived example on how to format the authors' infor
 
 \section{Introduction}
 
-This short example shows a contrived example on how to format the authors' information for {\it IJCAI--19 Proceedings}.
+Noboru
 
-\section{Author names}
+\section{Revue de la littérrature}
+ 
+Noboru
 
-Each author name must be followed by:
-\begin{itemize}
-    \item A newline {\tt \textbackslash{}\textbackslash{}} command for the last author.
-    \item An {\tt \textbackslash{}And} command for the second to last author.
-    \item An {\tt \textbackslash{}and} command for the other authors.
-\end{itemize}
+\section{Explication du jeu Snake }
+Le jeux Snake consiste en un environnement fermé 2D dans lequel une représentation simplifiée (en pixel) d'un serpent doit atteindre un point, qui consiste à de la nourriture, afin d'accumuler des points. Lorsque le point est atteint le serpent augmente de taille. Si le serpent entre en contact avec lui-même ou encore avec une paroie de l'environnement; la partie est termimée. Ainsi, le jeux devient de plus en plus difficile étant donné que la longueur du serpent augmente et la capacité de celui-ci à faire certains déplacement diminue. Certaines versions du jeux accélèrent aussi la vitesse de déplacement du serpent en plus de sa taille. Dans notre implémentation, nous n'avons pas ajouté cette fonctionnalité car la vitesse à laquelle l'agent prend une décision ne nous importe peu (l'horloge d'un processeur est beaucoup plus rapide que la vitesse maximale à laquelle un humain peut jouer), c'est plutôt la qualité de la décision qui nous importe. La figure 1 montre l'interface de notre jeux de snake. À gauche de la figure on témoigne d'un Snake en début de parti et à droite après quelques minutes de jeux. 
+\begin{figure}[ht]
+\includegraphics[width=\linewidth]{snake.png}
+\caption{Snake qui augmente sa taille en atteignant la cible.}
+\label{fig:Snake}
+\end{figure}
 
-\section{Affiliations}
+\section{Q-Learning : Explication théorique  }
+Généralement, les algorithmes d’apprentissages machines dépendent d’un grande quantité de donnée qui ont été étiquetées à la main afin de pouvoir faire des prédictions de qualité. Cependant, dans le contexte de l'apprentissage par renforcement, l’idée est plutôt de permettre à un l’algorithme, c’est-à-dire un agent, d’apprendre par lui-même les règles qui définissent le succès ou l’échec d’une tâche quelconque.\linebreak
 
-After all authors, start the affiliations section by using the {\tt \textbackslash{}affiliations} command.
-Each affiliation must be terminated by a newline {\tt \textbackslash{}\textbackslash{}} command. Make sure that you include the newline on the last affiliation too.
+Afin de se faméliariser avec l'algorithme de Q-learning nous avons entrainé un agent à jouer au jeux Snake selon  une politique de renforcement relativement simple.Pour ce faire, nous avons émulé l'expérience réalisé par Mnih et al. \cite{DBLP:journals/corr/MnihKSGAWR13}. Dans cette procédure, les chercheurs ont entrainé un agent virtuel à jouer à plusieurs jeux Atari. L'agent consiste en un réseau de neuronne à convolution qui reçoit comme entré la réprésentation visuelle du jeux, c'est-à-dire une image 210X160 pixels RGB. L'agent est ensuite entrainé par l'algorithme de Q-Learning selon une procédure de renforcement ( i.e récompense). En s'inpirant de cette approche et du blog de Comi \cite{comi_2020}, nous avons mis en place une procédure similaire avec la seule différence que nous fournisons à l'agent une représentation simplifié de l'état de la partie, non pas une image.  Plus précisément, considérons un agent virtuelle qui intéragit avec l'environnement $\xi$ (i.e le Snake), dans notre cas, un environnement 2D fermé, au Snake
+et à la nourriture que celui-ci doit atteindre afin de recevoir une récompense. À chaque époque temporelle, c'est-à-dire, à chaque nouveau déplacement du Snake, l'agent doit choisir une action  $\alpha_t$ au temps $t-1$  parmis l'ensemble d'action légal $\Delta  = \{1, ..., K\}$. Une fois l'action choisie, celle-ci est exécutée. Cette action a pour effet de modifier l'état interne de la partie. Afin d'éxécuté une nouvelle action au temps $t$, nous fournissons à l'agent le nouvel état ainsi qu'une récompense si son action au temps $t-1$ le méritait. Dans notre approche, nous fourinissons à l'agent une représentation simplifiée de la partie basé sur l'éminence d'un danger et la direction de la nourriture du snake. Nous considérons donc pour le temps $t-1$ un vecteur qui décris l'état de la partie et l'action qui a été prise pour cet état $s_t = x_1, \alpha_1$. La prochaine action de l'agent pour le temps $t$ sera basé sur le vecteur $s_t$. Le but de l'agent est donc de choisir une nouvelle action afin de maximiser une récompense future (ou minimiser les renforcements négatifs). Afin d'entrainer l'agent, nous définissons la fonction d'action optimal $Q^*(s,a)$ qui consiste au renforcement maximal attendu en suivant n'importque qu'elle stratégie après avoir vue un état $s$ et avoir pris une action $\alpha$, c'est-à-dire que $Q^*(s,a)= max_\pi 	\mathrm{E} \{R_t | s_t = s, \alpha_t = \alpha, \pi\}$ où $\pi$ est une politique qui associe un état de la partie à une action.  La fonction d'action optimal obéit une identité importante appelé équation de \textit{Bellman}. L'idée derrière cette équation est la suivante; si la valeur optimale de $Q^*(s',a')$ à l'état $s'$ était connue pour toute les actions possibles $\alpha'$, alors la stratégie optimale est de choisir l'action $\alpha'$ qui maximise le renforcement attendu pour $r + \gamma Q^*(s',a')$. Dans le contexte de l'apprentissage par renforcement, nous pouvons cherché une solution qui approxime $Q^*$ en incorporant dans un réseaux de neuronne la fonction 
 
-\section{Mapping authors to affiliations}
+$$NewQ(s,a) = Q(s,a)  + \alpha [\ R(s,a) + \gamma maxQ{'} (s{'},a{'}) - Q(s,a) ]\ $$
 
-If some scenarios, the affiliation of each author is clear without any further indication (\emph{e.g.}, all authors share the same affiliation, all authors have a single and different affiliation). In these situations you don't need to do anything special.
+Où $NewQ(s,a) $ correspond à la nouvelle récompense attendue au temps $t$, $Q(s,a)$ à la récompense approximée au temps $t-1$ correspond à l'action prise au temps $t-1$, $\alpha$ au taux d'apprentissage, $R(s,a)$ à la récompense donnée pour cette action, $\gamma$ au "Discount rate" (constante souvent initialisé à .99) et $maxQ{'} (s{'},a{'})$ correspond au la valeur maximal de la récompense attendue pour toutes les actions possibles ( qui correspond à la sortie du réseau de neuronnes). Ainsi, nous appliquons cette formule de façon itérative et nous optimisons la fonction de perte de type MSE (Mean Squared Error)  $L( \theta_{i}) = [\ y_{i} - Q(s,a; \theta_{i})^{2} ]\ $. Autrement dis, l'agent estime la meilleur action a prendre selon la récompense attendue. À la prochaine iétration, on réestime la même action selon le même état en sachant la récompense que cette action a rééellement donnée. On calcule la différence entre l'estimation et la récompense réellement atteinte (la fonction de perte) puis on ajuste les poids à l'aide de la descente du gradiant. De plus, pour toute les partie, nous enregistront en mémoire chaque actions prises par l'agent ainsi que les états et les récompenses obtenues. À la fin de chaque partie, nous prenons un échantillon qui représente autant les actions qui ont provoquées un renforcement positifs que les actions qui ont provoquées un renforcement négatifs. Aisni, nous procédons à une deuxième phase d'apprentissage entre les parties en fonctions de ces échantillons. Ceci permet à l'agent d'être proportionnelement entrainé sur des situations qui pourraient arrivé moins souvent (e.g trouvé la nourriture). 
 
-In more complex scenarios you will have to clearly indicate the affiliation(s) for each author. This is done by using numeric math superscripts {\tt \$\{\^{}$i,j, \ldots$\}\$}. You must use numbers, not symbols, because those are reserved for footnotes in this section (should you need them). Check the authors definition in this example for reference.
 
-\section{Emails}
 
-This section is optional, and can be omitted entirely if you prefer. If you want to include e-mails, you should either include all authors' e-mails or just the contact author(s)' ones.
 
-Start the e-mails section with the {\tt \textbackslash{}emails} command. After that, write all emails you want to include separated by a comma and a space, following the same order used for the authors (\emph{i.e.}, the first e-mail should correspond to the first author, the second e-mail to the second author and so on).
+Il suffit ensuite de remplacer la nouvelle valeur récompense attendu au temps $t$ pour la récomp
 
-You may ``contract" consecutive e-mails on the same domain as shown in this example (write the users' part within curly brackets, followed by the domain name). Only e-mails of the exact same domain may be contracted. For instance, contracting ``person@example.com" and ``other@test.example.com" is not allowed because the domains are different.
 
-\section{TEST}
+\subsection{Algorithme d'apprentissage}
 
+
+
+Ainsi, 
+\section{Explication de notre implémentation}
+
+Sam
+
+\section{Résultats}
+
+Sam
+
+\section{Améliorations possible}
+
+Sam
+
+\section{Conclusion}
+
+JF
+
+\printbibliography
 \end{document}
 
