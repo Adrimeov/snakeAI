@@ -3,7 +3,6 @@ import cube as cb
 import grilleObjets
 import utils
 import pickle
-import datetime
 import time
 
 from random import randint, random
@@ -23,6 +22,7 @@ screen = pygame.display.set_mode((200, 200))
 start_time = time.time()
 game_scores = []
 moves_per_game = []
+MAXIMUM_MOVES = 4000
 
 tick = 20
 fps = tick / 4
@@ -76,6 +76,8 @@ for i in range(epochs):
 
         reponse = cubePere.updateGoodPositions(positionsValides)
         done = reponse[0]
+        if moves_counter > MAXIMUM_MOVES:
+            done = True
         reward = reponse[1]
         directionActuelle = cubePere.getDirection()
         x = cubePere.x
@@ -102,7 +104,7 @@ for i in range(epochs):
     game_scores.append(scoreTotal)
     moves_per_game.append(moves_counter)
 
-    print(f"game #{i} score: {scoreTotal}")
+    print(f"game #{i} score: {scoreTotal} moves: {moves_counter}")
     with open(f"game_scores_{date}", "wb") as file:
         pickle.dump(game_scores, file)
     with open(f"moves_per_game_{date}", "wb") as file:
