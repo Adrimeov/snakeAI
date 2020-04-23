@@ -4,6 +4,7 @@ import grilleObjets
 import utils
 import pickle
 import datetime
+import time
 
 from random import randint, random
 from agent import Agent
@@ -11,15 +12,17 @@ from agent import Agent
 maxX = 190
 maxY = 190
 scoreParMiam = 1
-game_scores = []
 step = 10
-epochs = 200
+epochs = 500
 manual = True
 pygame.init()
 textFont = pygame.font.SysFont("monospace", 15)
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((200, 200))
 
+start_time = time.time()
+game_scores = []
+moves_per_game = []
 
 tick = 20
 fps = tick / 4
@@ -27,14 +30,14 @@ ctrFps = 0
 cubesParFood = 1
 
 epsilon_decay = 1 / 100
-date = datetime.datetime.today().strftime('%M')
+date = time.time()
 
 agent = Agent()
-
 
 for i in range(epochs):
     done = 0
     scoreTotal = 0
+    moves_counter = 0
 
     cubePere = cb.Cube(premier=True)
     cubes = [cubePere]
@@ -69,6 +72,7 @@ for i in range(epochs):
 
         cubePere.setDirectionSigne(new_direction[0], new_direction[1])
         cubePere.deplacementPere()
+        moves_counter += 1
 
         reponse = cubePere.updateGoodPositions(positionsValides)
         done = reponse[0]
@@ -96,8 +100,15 @@ for i in range(epochs):
         # clock.tick(tick)
 
     game_scores.append(scoreTotal)
+    moves_per_game.append(moves_counter)
 
     print(f"game #{i} score: {scoreTotal}")
     with open(f"game_scores_{date}", "wb") as file:
         pickle.dump(game_scores, file)
+    with open(f"moves_per_game_{date}", "wb") as file:
+        pickle.dump(moves_per_game, file)
     agent.save_model()
+
+
+end_time = time.time()
+print(f"training duration: {time.strftime('%M:%S', time.localtime(end_time - start_time))}")
