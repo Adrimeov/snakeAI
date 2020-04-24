@@ -21,6 +21,8 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{booktabs}
+% installez ce package -> sudo apt-get install texlive-science
+\usepackage[ruled,vlined]{algorithm2e}
 \urlstyle{same}
 \usepackage{biblatex}
 \addbibresource{ijcai19.bib}
@@ -94,11 +96,7 @@ $$NewQ(s,a) = Q(s,a)  + \alpha [\ R(s,a) + \gamma maxQ{'} (s{'},a{'}) - Q(s,a) ]
 
 où $NewQ(s,a) $ correspond à la nouvelle récompense attendue au temps $t$, $Q(s,a)$ à la récompense approximée au temps $t-1$ correspond à l'action prise au temps $t-1$, $\alpha$ au taux d'apprentissage, $R(s,a)$ à la récompense donnée pour cette action, $\gamma$ au "Discount rate" (constante souvent initialisé à .99) et $maxQ{'} (s{'},a{'})$ correspond au la valeur maximal de la récompense attendue pour toutes les actions possibles ( qui correspond à la sortie du réseau de neuronnes). Ainsi, nous appliquons cette formule de façon itérative et nous optimisons la fonction de perte de type MSE (Mean Squared Error)  $L( \theta_{i}) = [\ y_{i} - Q(s,a; \theta_{i})^{2} ]\ $. Autrement dis, l'agent estime la meilleur action a prendre selon la récompense attendue. À la prochaine iétration, on réestime la même action selon le même état en sachant la récompense que cette action a rééellement donnée. On calcule la différence entre l'estimation et la récompense réellement atteinte (la fonction de perte) puis on ajuste les poids à l'aide de la descente du gradiant. De plus, pour toute les partie, nous enregistront en mémoire chaque actions prises par l'agent ainsi que les états et les récompenses obtenues. À la fin de chaque partie, nous prenons un échantillon qui représente autant les actions qui ont provoquées un renforcement positifs que les actions qui ont provoquées un renforcement négatifs. Aisni, nous procédons à une deuxième phase d'apprentissage entre les parties en fonctions de ces échantillons. Ceci permet à l'agent d'être proportionnelement entrainé sur des situations qui pourraient arrivé moins souvent (e.g trouvé la nourriture). 
 
-
-
-
-Il suffit ensuite de remplacer la nouvelle valeur récompense attendu au temps $t$ pour la récomp
-
+Il suffit ensuite de remplacer la nouvelle valeur récompense attendu au temps $t$ pour la récompense
 
 \subsection{Algorithme d'apprentissage}
 
@@ -107,15 +105,77 @@ Il suffit ensuite de remplacer la nouvelle valeur récompense attendu au temps $
 Ainsi, 
 \section{Explication de notre implémentation}
 
-Sam
+L’implémentation proposée peut se diviser en trois parties distinctes: Le jeu, l’agent et le contrôleur.
+
+Premièrement le jeu. L’objectif du projet est d’entraîner un DQN sur le jeu classique Snake, il nous faut donc une forme du jeu avec laquelle nous aurons accès à son état et à son contrôle. Nous avons choisis de recréer le jeu en Python à l’aide de la librairie PyGame, ce qui nous permet d’avoir un accès direct aux éléments nécessaire. En premier lieu, il faut définir l’état qui sera utilisé pour entraîner l’agent. L’état représente l’environnement dans lequel le serpent se retrouve. Il représente aussi l’entrée de notre modèle. Dans notre cas, l’état aura la forme d’un vecteur avec 11 valeurs booléennes qui indiquent les situations suivantes:
+
+\begin{itemize}
+	\item La nourriture est à gauche, en face, à droite ou en arrière du serpent.
+	\item Il y a un danger imminent à gauche, en face ou à droite du serpent.
+	\item La direction du serpent (gauche, haut, droite ou bas).
+\end{itemize}
+
+Les actions possibles que nous pouvons donner au jeu sont aller à gauche, continuer dans la même direction ou aller à droite.
+
+Deuxièmement, l’agent. L’agent est l’entité qui contient le modèle d’apprentissage et qui dicte les actions à prendre selon un état donné. Nous utilisons un réseau de neurones profond. Il contient trois couches cachées avec 120 neurones avec activation de type ReLU suivit d’une couche de finale de type Softmax a trois sorties, une pour chaque action. L’agent est entraîné à chaque pas que le serpent fait et conserve une mémoire qui lui permet un entraînement en lot entre les parties. L’entrainement d’un pas considère l’état original du pas, l’action prise, l’état actuel ainsi que la récompense obtenue suite à l’action. Le système de récompense est simple; si le serpent perd, la récompense est mise à -10. Si le serpent mange, la récompense est mise à 10.
+
+Troisièmement, le contrôleur est ce qui orchestre l'interaction entre le jeu et l’agent. Ce code implémente l’algorithme Deep Q-Learning. Nous utilisons une variable, epsilon, qui permet d’effectuer une action aléatoire selon une probabilité. Cette variable dégrade entre chaque partie et promue l’exploration dans les premières époques de l’entraînement. Le programme se déroule comme suit:
+
+\begin{algorithm}
+\caption{Séquence d'entraînement de l'agent}
+\KwResult{Un agent intellligent entraîné}
+initialisation\;
+\For{i in epochs}{
+	initialistion du jeu\;
+	entraîner l'agent avec sa mémoire\;
+	\While{not done}{
+		Prendre l'état actuel\;
+		Prédire les récompenses associé a chaque actions possible par le modèle\;
+		Effectuer l'action qui favorise la meilleure récompense\;
+		Prendre le nouvel état\;
+		Calculer la récompense selon le nouvel état\;
+		Comparer la récompense obtenu avec celle prédite (fonction de perte)\;
+		Entrainement du modèle par descente du gradiant avec Q-learning\;
+	}
+}
+\end{algorithm}
+
+Le résultat est un agent entraîné selon un nombre d'époques (parties).
 
 \section{Résultats}
 
-Sam
+La configuration choisie pour l'entraînement est une grille de jeu 20 par 20 où chaque fruit mangé donne un point. L’agent as été entraîné pendant 200 époques (parties) avec une valeur epsilon = 1 / 100 (disparut après 100 parties) en laissant une probabilité de 1\% de faire une action aléatoire. Les figures suivantes représentent deux métriques intéressantes pour visualiser la progression de l'agent.
+
+\begin{figure}[ht]
+	\includegraphics[width=\linewidth]{scatter_score_200_games.png}
+	\caption{Nuage de points du pointage par rapport au nombre de parties jouée.}
+	\label{fig:Snake}
+\end{figure}
+
+La première figure montre le pointage par rapport au nombre de parties jouées. On peut voir que le pointage lors de la période d’exploration reste bas. C’est expliqué parce que le serpent effectue des actions aléatoires et se rend rarement à la nourriture. On voit toutefois qu’il apprend correctement et obtient de bons scores avec une moyenne de 10.965 points par parties et un score maximal de 49 points. Une limitation du modèle est que l’état utilisé ne permet pas de représenter si le serpent s’enroule sur lui même. Cette situation arrive plus souvent lorsque le score devient haut et est une raison pourquoi le score semble stagner après un certain nombre de parties. La probabilité d’action aléatoire reste présente pendant tout l'entraînement, ce qui peut causer certaines anomalies, mais reste important pour éviter de tomber dans un états de boucle infinie.
+
+\begin{figure}[ht]
+	\includegraphics[width=\linewidth]{moves_per_game_200.png}
+	\caption{Nuage de points du nombre de déplacements par rapport au nombre de parties jouée.}
+	\label{fig:Snake}
+\end{figure}
+
+La deuxième figure présente le nombre d'actions par rapport au nombre de parties jouées. On remarque que cette métrique semble corrélée avec la métrique de pointage. L'agent se concentre sur le pointage, c'est-à-dire qu'il tente toujours de se rapprocher de la nourriture avant tout.
+
+En observant l'agent jouer, il est évident que son comportement est limité. L'agent peut seulement interpréter les dangers imminents et a tendance à s'entreméler sur lui même et perdre. Cette limitation cause un plateau que l'agent ne semble pas surpasser avec un entrainement plus long.
+
+
+Pour une meilleure vue d'ensemble, 
+\href{https://www.youtube.com/watch?v=HNeuuXA3Flg&feature=youtu.be}{voici un lien vers une capture d’un entraînement pour visualiser le comportement du serpent}
+ainsi
+\href{https://github.com/Adrimeov/snakeAI}{qu'un lien vers le répertoire Git avec le code source de l'implémentation proposée.}
+
 
 \section{Améliorations possible}
 
-Sam
+Une difficultée observée était que le modèle semblait seulement apprendre à survivre. Nous avons expérimenté de différentes façons pour altérer ce comportement. Par exemple, nous avons modifiés le système de récompenses afin de bonifier l’agent lorsque le serpent mange ou simplement ajouté une récompense positive lorsqu’il se déplace sans perdre. Le comportement ne semblait pas changer selon les récompenses. Le problème apparaissait à cause de l’entraînement qui est effectué avec la mémoire entre chaque époques. Lors des premières parties, le serpent réussissait rarement à manger donc sa mémoire était remplie d’états où les récompenses sont nulles ou négatives. Il apprenait donc seulement à se déplacer et éviter les dangers. La solution choisie était de sauvegarder un ensemble équilibré de mémoires qui représentent les différentes récompenses. Après avoir fait ce changement, le serpent vite compris à gérer les différentes solutions.
+
+La solution proposée est très spécifique au jeu Snake et beaucoup de changements seraient nécessaires si nous voulions l’adapter pour un autre jeu. L’état donné à l’agent, soit la dimension de l’entré du modèle, n’est valable que pour ce jeu et nous pouvons dire la même chose du vecteur d’action. Une solution possible pour rendre l’état générique serait d’utiliser l’image du jeu comme entrée. Cette technique permet de ne pas avoir à extraire manuellement un vecteur qui représente l’environnement du joueur. Sinon, il serait possible d’expérimenter avec des réseaux convolutionnels où d’autres techniques plus intéressantes qu’un simple réseau de neurones profond.
 
 \section{Conclusion}
 

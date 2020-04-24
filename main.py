@@ -12,7 +12,7 @@ maxX = 190
 maxY = 190
 scoreParMiam = 1
 step = 10
-epochs = 500
+epochs = 200
 manual = True
 pygame.init()
 textFont = pygame.font.SysFont("monospace", 15)
@@ -22,7 +22,7 @@ screen = pygame.display.set_mode((200, 200))
 start_time = time.time()
 game_scores = []
 moves_per_game = []
-MAXIMUM_MOVES = 4000
+MAXIMUM_MOVES = 3000
 
 tick = 20
 fps = tick / 4
@@ -63,7 +63,7 @@ for i in range(epochs):
         old_state, debug_1 = utils.return_state(directionActuelle, positionBouffe, x, y, positionsValides, step)
         epsilon = 1 - i * epsilon_decay
 
-        if random() < epsilon:
+        if random() < max(epsilon, 0.01):
             action = randint(0, 2)
         else:
             action = agent.predict_move(old_state).item()
