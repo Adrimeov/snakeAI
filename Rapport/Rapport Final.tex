@@ -107,17 +107,17 @@ Ainsi,
 
 L’implémentation proposée peut se diviser en trois parties distinctes: Le jeu, l’agent et le contrôleur.
 
-Premièrement le jeu. L’objectif du projet est d’entraîner un DQN sur le jeu classique Snake, il nous faut donc une forme du jeu avec laquelle nous aurons accès à son état et à son contrôle. Nous avons choisis de recréer le jeu en Python à l’aide de la librairie PyGame, ce qui nous permet d’avoir un accès direct aux éléments nécessaire. En premier lieu, il faut définir l’état qui sera utilisé pour entraîner l’agent. L’état représente l’environnement dans lequel le serpent se retrouve. Il représente aussi l’entrée de notre modèle. Dans notre cas, l’état aura la forme d’un vecteur avec 11 valeurs booléennes qui indiquent les situations suivantes:
+Premièrement le jeu. L’objectif du projet est d’entraîner un DQN sur le jeu classique Snake, il nous faut donc une forme du jeu pour laquelle nous aurons accès à son état et à son contrôle. Nous avons choisis de recréer le jeu en Python à l’aide de la librairie PyGame. Tout d'abord, il faut définir l’état qui sera utilisé pour entraîner l’agent. L’état représente l’environnement dans lequel le serpent se retrouve à un temps donné. Il représente aussi l’entrée de notre modèle. Dans notre cas, l’état aura la forme d’un vecteur avec 11 valeurs booléennes qui indiquent les situations suivantes:
 
 \begin{itemize}
-	\item La nourriture est à gauche, en face, à droite ou en arrière du serpent.
-	\item Il y a un danger imminent à gauche, en face ou à droite du serpent.
+	\item Si la nourriture est à gauche, en face, à droite ou en arrière du serpent.
+	\item Si il y a un danger imminent à gauche, en face ou à droite du serpent.
 	\item La direction du serpent (gauche, haut, droite ou bas).
 \end{itemize}
 
-Les actions possibles que nous pouvons donner au jeu sont aller à gauche, continuer dans la même direction ou aller à droite.
+Les actions possibles pour l'agent sont aller à gauche, continuer dans la même direction ou aller à droite.
 
-Deuxièmement, l’agent. L’agent est l’entité qui contient le modèle d’apprentissage et qui dicte les actions à prendre selon un état donné. Nous utilisons un réseau de neurones profond. Il contient trois couches cachées avec 120 neurones avec activation de type ReLU suivit d’une couche de finale de type Softmax a trois sorties, une pour chaque action. L’agent est entraîné à chaque pas que le serpent fait et conserve une mémoire qui lui permet un entraînement en lot entre les parties. L’entrainement d’un pas considère l’état original du pas, l’action prise, l’état actuel ainsi que la récompense obtenue suite à l’action. Le système de récompense est simple; si le serpent perd, la récompense est mise à -10. Si le serpent mange, la récompense est mise à 10.
+L’agent est quant à lui l’entité qui contient le modèle d’apprentissage et qui doit effectuer les meilleurs actions à prendre selon un état donné. Nous utilisons un réseau de neurones profond. Il contient trois couches cachées, contenant 120 neurones munis de fonctions d'activations de type ReLU, et d’une couche finale de type Softmax à trois sorties, une pour chaque action. L’agent est entraîné à chaque pas que le serpent fait et conserve une mémoire qui lui permet un entraînement en lot entre les parties. L’entrainement d’un pas considère l’état original du pas, l’action prise, l’état actuel ainsi que la récompense obtenue suite à l’action. Le système de récompense est simple; si le serpent perd, la récompense est mise à -10. Si le serpent mange, la récompense est mise à 10.
 
 Troisièmement, le contrôleur est ce qui orchestre l'interaction entre le jeu et l’agent. Ce code implémente l’algorithme Deep Q-Learning. Nous utilisons une variable, epsilon, qui permet d’effectuer une action aléatoire selon une probabilité. Cette variable dégrade entre chaque partie et promue l’exploration dans les premières époques de l’entraînement. Le programme se déroule comme suit:
 
@@ -144,7 +144,7 @@ Le résultat est un agent entraîné selon un nombre d'époques (parties).
 
 \section{Résultats}
 
-La configuration choisie pour l'entraînement est une grille de jeu 20 par 20 où chaque fruit mangé donne un point. L’agent as été entraîné pendant 200 époques (parties) avec une valeur epsilon = 1 / 100 (disparut après 100 parties) en laissant une probabilité de 1\% de faire une action aléatoire. Les figures suivantes représentent deux métriques intéressantes pour visualiser la progression de l'agent.
+La configuration choisie pour l'entraînement est une grille de jeu 20 par 20 où chaque fruit mangé donne un point. L’agent a été entraîné pendant 200 époques (parties) avec une valeur epsilon = 1 / 100 (mouvements aléatoires disparaissent après 100 parties) en laissant une probabilité de 1\% de faire une action aléatoire. Les figures suivantes représentent deux métriques intéressantes pour visualiser la progression de l'agent.
 
 \begin{figure}[ht]
 	\includegraphics[width=\linewidth]{scatter_score_200_games.png}
