@@ -50,7 +50,7 @@
 % page charge instructions.
 % Put where the files are available in the appropriate places.
 
-\title{Entrainement d'un agent virtuelle par Q-learning pour le jeu Snake}
+\title{Entrainement d'un agent virtuel par Q-learning pour le jeu Snake}
 
 \author{
 Samuel Ferron\and
@@ -72,14 +72,18 @@ This short example shows a contrived example on how to format the authors' infor
 
 \section{Introduction}
 
-Noboru
+Depuis 1997, lorsque Deep Blue a battu Garry Kasparov, ex-champion du monde d’échecs, de nombreux chercheurs se sont lancés dans la recherche d’algorithmes afin de battre un joueur humain dans les jeux les plus connus. Aujourd’hui, il existe des réseaux neuronaux qui performent mieux qu’un être humain dans le monde des échecs, bien-sûr, mais aussi dans ceux du Go et du Shogi. En 2019, un projet nommé AlphaStar a réussi à battre des joueurs humains dans StarCraft II, un jeu vidéo stratégique qui se joue en ligne.\linebreak
 
-\section{Revue de la littérrature}
+Après avoir témoigné ces multiples défaites de l’humanité, nous nous sommes intéressés au fonctionnement de ces réseaux neuronaux qui s’y tenaient derrière et avons donc décidé d’en implémenter un nous-même, avec le fameux jeu Snake.
+
+\section{Revue de la littérature}
  
-Noboru
+Peu importe la complexité du jeu, le concept demeure relativement semblable. En effet, il faut d'abord créer un environnement à partir duquel on peut retirer des informations telles les agents qui sont présents et l'espace dans lequel le joueur peut réaliser des actions. Même dans un jeu de stratégie très complexe comme celui de StarCraft II, les chercheurs ont réussi à concevoir un environnement d'apprentissage par renforcement, qui a d'ailleurs été utilisé pour implémenter l'algorithme de AlphaStar lorsque ce dernier a battu des joueurs humains. Pour ce faire, chaque détail du jeu a été analysé de manière munitieuse et a ensuite été transformé en variables et matrices. Ces données représentant le grand nombre de ressources et d'influence, ainsi que les centaines de pièces que le joueur doit bouger sont utilisées pour calculer les actions que le modèle doit exécuter afin de maximiser sa récompense. Lorsqu'on modélise un environnement, ce qui est l'élément le plus important est la précision des variables et c'est ce qui devient compliqué pour un jeu avec un plus grand niveau de complexité.
+\linebreak
+L'expérience réalisée par Mnih et al.  qui consiste à créer un modèle ayant les capacités de jouer à des jeux d'Atari 2600 est semblable à celle que nous tentons de faire. Dans leur papier, ils expliquent chaque étape de leur processus, de la création de l'environnement avec la définition de chacun des agents et le système de récompenses utilisés, au fonctionnement de leur réseau neuronal convolutif entrainé avec une variation de l'algorithme Q-learning utilisant l'algorithme du gradient stochastique afin de mettre à jour les poids. Les différents obstacles propres à l'apprentissage par renforcement sont présentés avec les solutions qui ont été apportées pour chacun d'entre eux. Les jeux d'Atari 2600 n'ayant pas un niveau de complexité aussi élevé que celui de StarCraft II, nous nous sommes grandement inspirés de cette expérience dans la procédure d'implémentation de notre modèle avec le jeu Snake.
 
 \section{Explication du jeu Snake }
-Le jeux Snake consiste en un environnement fermé 2D dans lequel une représentation simplifiée (en pixel) d'un serpent doit atteindre un point, qui consiste à de la nourriture, afin d'accumuler des points. Lorsque le point est atteint le serpent augmente de taille. Si le serpent entre en contact avec lui-même ou encore avec une paroie de l'environnement; la partie est termimée. Ainsi, le jeux devient de plus en plus difficile étant donné que la longueur du serpent augmente et la capacité de celui-ci à faire certains déplacement diminue. Certaines versions du jeux accélèrent aussi la vitesse de déplacement du serpent en plus de sa taille. Dans notre implémentation, nous n'avons pas ajouté cette fonctionnalité car la vitesse à laquelle l'agent prend une décision ne nous importe peu (l'horloge d'un processeur est beaucoup plus rapide que la vitesse maximale à laquelle un humain peut jouer), c'est plutôt la qualité de la décision qui nous importe. La figure 1 montre l'interface de notre jeux de snake. À gauche de la figure on témoigne d'un Snake en début de parti et à droite après quelques minutes de jeux. 
+Le jeu Snake consiste en un environnement fermé 2D dans lequel une représentation simplifiée (en pixel) d'un serpent doit atteindre un point, qui consiste à de la nourriture, afin d'accumuler des points. Lorsque le point est atteint le serpent augmente de taille. Si le serpent entre en contact avec lui-même ou encore avec une paroie de l'environnement; la partie est termimée. Ainsi, le jeux devient de plus en plus difficile étant donné que la longueur du serpent augmente et la capacité de celui-ci à faire certains déplacement diminue. Certaines versions du jeux accélèrent aussi la vitesse de déplacement du serpent en plus de sa taille. Dans notre implémentation, nous n'avons pas ajouté cette fonctionnalité car la vitesse à laquelle l'agent prend une décision ne nous importe peu (l'horloge d'un processeur est beaucoup plus rapide que la vitesse maximale à laquelle un humain peut jouer), c'est plutôt la qualité de la décision qui nous importe. La figure 1 montre l'interface de notre jeux de snake. À gauche de la figure on témoigne d'un Snake en début de parti et à droite après quelques minutes de jeux. 
 \begin{figure}[ht]
 \includegraphics[width=\linewidth]{snake.png}
 \caption{Snake qui augmente sa taille en atteignant la cible.}
