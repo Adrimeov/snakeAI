@@ -71,7 +71,7 @@ class Cube:
     def color(self):
         return self._color
 
-    def setDirectionSinge(self, directionX=True, estPositif=True):
+    def setDirectionSigne(self, directionX=True, estPositif=True):
 
         self._directionX = directionX
         self._deplacementPositif = estPositif
@@ -80,7 +80,6 @@ class Cube:
         position = (self.x, self.y)
         isFood = positionArray.suprimmerIndex(position)
         if isFood == -1:
-            print("Collision")
             return (1, False)
         self.updateGoodPositionsFils(positionArray)
         return (0, isFood)

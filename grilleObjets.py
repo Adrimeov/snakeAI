@@ -24,8 +24,4 @@ class grilleObjets:
         return random.choice(list(self.dictioPosition.keys()))
 
     def estDansGrille(self, index):
-        try:
-            ok = self.dictioPosition[index]
-            return True
-        except:
-            return False
+        return index in self.dictioPosition

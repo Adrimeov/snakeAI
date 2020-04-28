@@ -1,122 +1,116 @@
 import pygame
-import cube
+import cube as cb
 import grilleObjets
-import numpy
+import utils
+import pickle
+import time
 
-maxX = 390
-maxY = 390
-scoreParMiam = 10
-scoreTotal = 0
+from random import randint, random
+from agent import Agent
+
+maxX = 190
+maxY = 190
+scoreParMiam = 1
 step = 10
-
+epochs = 200
+manual = True
 pygame.init()
 textFont = pygame.font.SysFont("monospace", 15)
-
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((400, 400))
-done = 0
+screen = pygame.display.set_mode((200, 200))
 
-cubePere = cube.Cube(premier=True)
-cubes = [cubePere]
-cubesParFood = 10
+start_time = time.time()
+game_scores = []
+moves_per_game = []
+MAXIMUM_MOVES = 3000
 
-positionsValides = grilleObjets.grilleObjets(400, step)
-positionBouffe = positionsValides.genererNouveauPoint()
-positionsValides.miseAJourIndex(positionBouffe, True)
-
-tick = 5
+tick = 20
 fps = tick / 4
 ctrFps = 0
+cubesParFood = 1
 
-for i in range(10):
-    cubes.append(cubePere.ajouterFils())
+epsilon_decay = 1 / 100
+date = time.time()
 
-while not done:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = 1
+agent = Agent()
 
-    directionActuelle = cubePere.getDirection()
+for i in range(epochs):
+    done = 0
+    scoreTotal = 0
+    moves_counter = 0
 
-    x = cubePere.x
-    y = cubePere.y
+    cubePere = cb.Cube(premier=True)
+    cubes = [cubePere]
+    for j in range(1):
+        cubes.append(cubePere.ajouterFils())
+    positionsValides = grilleObjets.grilleObjets(200, step)
+    positionBouffe = positionsValides.genererNouveauPoint()
+    positionsValides.miseAJourIndex(positionBouffe, True)
 
-    if directionActuelle == "DROITE":
-        bouffeEstAGauche = int(positionBouffe[1] < y)
-        bouffeEstADroite = int(positionBouffe[1] > y)
-        bouffeDroitDevant = int(not bouffeEstADroite and not bouffeEstAGauche)
-        libreAGauche = int(positionsValides.estDansGrille((x, y - step)))
-        libreADroite = int(positionsValides.estDansGrille((x, y + step)))
-        libreEnAvant = int(positionsValides.estDansGrille((x + step, y)))
+    agent.replay_memory(100)
+    loss = 0
 
-    if directionActuelle == "GAUCHE":
-        bouffeEstAGauche = int(positionBouffe[1] > y)
-        bouffeEstADroite = int(positionBouffe[1] < y)
-        bouffeDroitDevant = int(not bouffeEstADroite and not bouffeEstAGauche)
-        libreAGauche = int(positionsValides.estDansGrille((x, y + step)))
-        libreADroite = int(positionsValides.estDansGrille((x, y - step)))
-        libreEnAvant = int(positionsValides.estDansGrille((x - step, y)))
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = 1
 
-    if directionActuelle == "HAUT":
-        bouffeEstAGauche = int(positionBouffe[0] < x)
-        bouffeEstADroite = int(positionBouffe[0] > x)
-        bouffeDroitDevant = int(not bouffeEstADroite and not bouffeEstAGauche)
-        libreAGauche = int(positionsValides.estDansGrille((x - step, y)))
-        libreADroite = int(positionsValides.estDansGrille((x + step, y)))
-        libreEnAvant = int(positionsValides.estDansGrille((x, y - step)))
+        directionActuelle = cubePere.getDirection()
 
-    if directionActuelle == "BAS":
-        bouffeEstAGauche = int(positionBouffe[0] > x)
-        bouffeEstADroite = int(positionBouffe[0] < x)
-        bouffeDroitDevant = int(not bouffeEstADroite and not bouffeEstAGauche)
-        libreAGauche = int(positionsValides.estDansGrille((x + step, y)))
-        libreADroite = int(positionsValides.estDansGrille((x - step, y)))
-        libreEnAvant = int(positionsValides.estDansGrille((x, y + step)))
+        x = cubePere.x
+        y = cubePere.y
 
-    inputs = numpy.array([
-        bouffeDroitDevant,
-        bouffeEstADroite,
-        bouffeEstAGauche,
-        libreEnAvant,
-        libreADroite,
-        libreAGauche
-    ])
+        old_state, debug_1 = utils.return_state(directionActuelle, positionBouffe, x, y, positionsValides, step)
+        epsilon = 1 - i * epsilon_decay
 
-    print(inputs)
+        if random() < max(epsilon, 0.01):
+            action = randint(0, 2)
+        else:
+            action = agent.predict_move(old_state).item()
 
-    pressed = pygame.key.get_pressed()
-    if pressed[pygame.K_UP] and cubePere.verifY(positif=False):
-        cubePere.setDirectionSinge(False, False)
+        new_direction = utils.prediction_to_direction(utils.direction_from_string_to_bool(directionActuelle), action)
 
-    elif pressed[pygame.K_DOWN] and cubePere.verifY():
-        cubePere.setDirectionSinge(False, True)
+        cubePere.setDirectionSigne(new_direction[0], new_direction[1])
+        cubePere.deplacementPere()
+        moves_counter += 1
 
-    elif pressed[pygame.K_RIGHT] and cubePere.verifX():
-        cubePere.setDirectionSinge(True, True)
-
-    elif pressed[pygame.K_LEFT] and cubePere.verifX(positif=False):
-        cubePere.setDirectionSinge(True, False)
-
-    screen.fill((0, 0, 0))
-    scoretext = "SCORE: " + scoreTotal.__str__()
-    label = textFont.render(scoretext, 1, (255, 255, 255))
-    screen.blit(label, (0, 0))
-    for cube in cubes:
-        pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
-    pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(positionBouffe[0], positionBouffe[1], 9, 9))
-    pygame.display.flip()
-    cubePere.deplacementPere()
-
-    reponse = cubePere.updateGoodPositions(positionsValides)
-    done = reponse[0]
-
-    if reponse[1]:
-        scoreTotal += scoreParMiam
-        print(scoreTotal)
-        positionBouffe = positionsValides.genererNouveauPoint()
+        reponse = cubePere.updateGoodPositions(positionsValides)
+        done = reponse[0]
+        if moves_counter > MAXIMUM_MOVES:
+            done = True
+        reward = reponse[1]
+        directionActuelle = cubePere.getDirection()
+        x = cubePere.x
+        y = cubePere.y
+        new_state, debug_2 = utils.return_state(directionActuelle, positionBouffe, x, y, positionsValides, step)
+        if reponse[1]:
+            scoreTotal += scoreParMiam
+            positionBouffe = positionsValides.genererNouveauPoint()
+            for j in range(cubesParFood):
+                cubes.append(cubePere.ajouterFils())
         positionsValides.miseAJourIndex(positionBouffe, True)
-        for i in range(cubesParFood):
-            cubes.append(cubePere.ajouterFils())
 
-    ctrFps += fps
-    clock.tick(tick)
+        reward = agent.set_reward(reward, done)
+        loss = agent.train_step(old_state, action, new_state, reward, done)
+        agent.save_state(old_state, action, new_state, reward, done)
+
+        for cube in cubes:
+            pygame.draw.rect(screen, cube.color(), pygame.Rect(cube.x, cube.y, 9, 9))
+        pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(positionBouffe[0], positionBouffe[1], 9, 9))
+        pygame.display.flip()
+        screen.fill((0, 0, 0))
+        # clock.tick(tick)
+
+    game_scores.append(scoreTotal)
+    moves_per_game.append(moves_counter)
+
+    print(f"game #{i} score: {scoreTotal} moves: {moves_counter}")
+    with open(f"game_scores_{date}", "wb") as file:
+        pickle.dump(game_scores, file)
+    with open(f"moves_per_game_{date}", "wb") as file:
+        pickle.dump(moves_per_game, file)
+    agent.save_model()
+
+
+end_time = time.time()
+print(f"training duration: {time.strftime('%M:%S', time.localtime(end_time - start_time))}")
